@@ -1,0 +1,2298 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>天大科技园 · 企业选址平台</title>
+<meta name="description" content="天大科技园五大园区招商平台 - 碳湾园/天开园/西青园/津南园/南开园 企业选址一站通">
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1a6fd4">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="天大科技园">
+<link rel="apple-touch-icon" href="apple-icon-180.png">
+<!-- 微信分享卡片 -->
+<meta property="og:title" content="天大科技园 · 企业选址平台">
+<meta property="og:description" content="碳湾园/天开园/西青园/津南园/南开园 五大园区 一站选址">
+<meta property="og:image" content="icon-512.png">
+<meta property="og:type" content="website">
+<meta itemprop="name" content="天大科技园 · 企业选址平台">
+<meta itemprop="description" content="碳湾园/天开园/西青园/津南园/南开园 五大园区 一站选址">
+<meta itemprop="image" content="icon-512.png">
+<style>
+  :root {
+    --blue: #1a6fd4;
+    --blue-light: #e8f0fe;
+    --blue-dark: #0d4fa0;
+    --red: #e84040;
+    --green: #27ae60;
+    --orange: #e67e22;
+    --yellow: #f0a500;
+    --text: #222;
+    --text-secondary: #666;
+    --text-light: #999;
+    --bg: #f5f6fa;
+    --card: #fff;
+    --border: #f0f0f0;
+    --radius: 12px;
+    --shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', sans-serif; background: var(--bg); color: var(--text); max-width: 480px; margin: 0 auto; min-height: 100vh; overflow-x: hidden; position: relative; }
+
+  .top-bar { background: linear-gradient(135deg, #0d4fa0, #1a6fd4); color: #fff; min-height: 50px; display: flex; align-items: center; padding: env(safe-area-inset-top) 16px 0; position: sticky; top: 0; z-index: 100; }
+  .top-bar .back-btn { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: pointer; margin-right: 8px; border-radius: 50%; transition: background 0.2s; }
+  .top-bar .back-btn:active { background: rgba(255,255,255,0.15); }
+  .top-bar h1 { font-size: 17px; font-weight: 600; flex: 1; text-align: center; }
+  .top-bar .right-btn { width: 32px; text-align: right; font-size: 20px; cursor: pointer; opacity: 0.8; }
+
+  .tab-bar { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: #fff; border-top: 1px solid #eee; display: flex; z-index: 200; padding-bottom: env(safe-area-inset-bottom); }
+  .tab-item { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 6px 0 8px; cursor: pointer; transition: color 0.2s; }
+  .tab-item .tab-icon { font-size: 20px; margin-bottom: 2px; }
+  .tab-item .tab-label { font-size: 10px; color: #999; }
+  .tab-item.active .tab-label { color: var(--blue); font-weight: 600; }
+  .tab-item.contact-tab { display: none; }
+
+  /* 飘浮咨询按钮 */
+  .float-consult {
+    position: fixed; bottom: 100px; right: 16px; z-index: 250;
+    height: 50px; border-radius: 25px; padding: 0 20px 0 16px;
+    background: linear-gradient(135deg, #1a6fd4, #0d4fa0);
+    color: #fff;
+    display: flex; align-items: center; gap: 6px;
+    font-size: 22px; cursor: pointer; white-space: nowrap;
+    box-shadow: 0 4px 20px rgba(26,111,212,0.45);
+    animation: floatBounce 4s ease-in-out infinite;
+    border: none; outline: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .float-consult span { font-size: 13px; font-weight: 500; letter-spacing: 1px; }
+  .float-consult:active { transform: scale(0.92); }
+  @keyframes floatBounce {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    25%  { transform: translateY(-14px) rotate(-3deg); }
+    50%  { transform: translateY(-4px) rotate(0deg); }
+    75%  { transform: translateY(-18px) rotate(3deg); }
+  }
+
+  /* 咨询弹窗 */
+  .contact-modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 300; align-items: flex-end; justify-content: center; }
+  .contact-modal-overlay.show { display: flex; }
+  .contact-modal { background: #fff; width: 100%; max-width: 480px; border-radius: 16px 16px 0 0; padding: 20px; text-align: center; animation: slideUp 0.25s ease-out; }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .contact-modal .close-btn { position: absolute; right: 16px; top: 16px; width: 28px; height: 28px; background: #f0f0f0; border: none; border-radius: 50%; font-size: 16px; cursor: pointer; color: #666; }
+
+  .page { display: none; padding-bottom: 70px; }
+  .page.active { display: block; }
+
+  .hero { background: linear-gradient(135deg, #0d4fa0, #1a6fd4); padding: 24px 16px; color: #fff; position: relative; overflow: hidden; }
+  .hero::after { content: ''; position: absolute; right: -20px; top: -40px; width: 160px; height: 160px; border-radius: 50%; background: rgba(255,255,255,0.05); }
+  .hero::before { content: ''; position: absolute; right: 40px; bottom: -30px; width: 100px; height: 100px; border-radius: 50%; background: rgba(255,255,255,0.04); }
+  .hero h2 { font-size: 20px; font-weight: 700; position: relative; z-index: 1; margin-bottom: 6px; }
+  .hero p { font-size: 13px; opacity: 0.8; position: relative; z-index: 1; margin-bottom: 16px; }
+  .hero .search-box { background: #fff; border-radius: 24px; display: flex; align-items: center; padding: 8px 16px; position: relative; z-index: 1; box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
+  .hero .search-box input { flex: 1; border: none; font-size: 14px; outline: none; color: #333; }
+  .hero .search-box input::placeholder { color: #bbb; }
+  .hero .search-box .search-btn { background: var(--blue); color: #fff; border: none; padding: 8px 20px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+
+  .stats-bar { display: flex; background: #fff; margin: -12px 16px 12px; border-radius: var(--radius); box-shadow: var(--shadow); padding: 14px 0; position: relative; z-index: 2; }
+  .stat-item { flex: 1; text-align: center; border-right: 1px solid var(--border); }
+  .stat-item:last-child { border-right: none; }
+  .stat-num { font-size: 18px; font-weight: 700; color: var(--blue); }
+  .stat-label { font-size: 10px; color: var(--text-light); margin-top: 2px; }
+
+  .section-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 16px 10px; }
+  .section-title { font-size: 16px; font-weight: 700; color: #222; display: flex; align-items: center; gap: 8px; }
+  .section-title::before { content: ''; display: block; width: 3px; height: 16px; background: var(--blue); border-radius: 2px; }
+  .section-more { font-size: 12px; color: var(--text-light); cursor: pointer; }
+
+  .park-filter-scroll { display: flex; gap: 8px; padding: 0 16px 12px; overflow-x: auto; scrollbar-width: none; }
+  .park-filter-scroll::-webkit-scrollbar { display: none; }
+  .park-filter-chip { white-space: nowrap; padding: 8px 16px; border-radius: 20px; font-size: 12px; border: 1.5px solid #e0e0e0; color: #555; cursor: pointer; background: #fff; transition: all 0.2s; }
+  .park-filter-chip.active { background: var(--blue); color: #fff; border-color: var(--blue); }
+  .park-filter-chip:active { transform: scale(0.96); }
+
+  .park-card { background: #fff; margin: 0 16px 10px; border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; }
+  .park-card:active { transform: scale(0.98); }
+  .park-card-header { height: 80px; position: relative; display: flex; align-items: center; justify-content: center; }
+  .park-card-header .park-name { color: #fff; font-size: 17px; font-weight: 700; text-shadow: 0 1px 2px rgba(0,0,0,0.2); z-index: 1; }
+  .park-card-header .park-sub { color: rgba(255,255,255,0.85); font-size: 11px; z-index: 1; margin-left: 8px; }
+  .park-card-body { padding: 12px 14px; }
+  .park-card-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .park-card-meta { display: flex; gap: 16px; margin-top: 8px; }
+  .park-meta-item { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--text-light); }
+  .park-card-footer { display: flex; align-items: center; justify-content: space-between; padding: 0 14px 12px; }
+  .park-card-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .park-card-tag { font-size: 10px; padding: 2px 8px; border-radius: 10px; background: var(--blue-light); color: var(--blue); }
+  .park-card-count { font-size: 12px; color: var(--blue); font-weight: 600; white-space: nowrap; }
+  .park-card-req { margin-top: 10px; padding: 8px 10px; background: #fdf6ec; border-radius: 8px; font-size: 11px; color: #8b6914; line-height: 1.5; }
+  .park-card-req b { color: #d48806; }
+  .park-detail-req { margin-top: 14px; padding: 12px 14px; background: #fdf6ec; border-radius: 10px; font-size: 13px; color: #8b6914; line-height: 1.7; border-left: 3px solid #d48806; }
+  .park-detail-req-title { font-size: 14px; font-weight: 700; color: #d48806; margin-bottom: 6px; }
+  .floorplan-section { margin: 0 16px; }
+  .floorplan-section img { width: 100%; border-radius: 10px; border: 1px solid #e8e8e8; }
+  .floorplan-note { font-size: 11px; color: #999; margin-top: 6px; line-height: 1.5; }
+
+  .house-list { padding: 0 16px; display: flex; flex-direction: column; gap: 10px; }
+  .house-card { background: #fff; border-radius: var(--radius); display: flex; overflow: hidden; box-shadow: var(--shadow); cursor: pointer; transition: transform 0.1s; }
+  .house-card:active { transform: scale(0.98); }
+  .house-img { width: 110px; min-height: 110px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; position: relative; }
+  .house-img .floor-badge { position: absolute; top: 6px; left: 6px; background: rgba(0,0,0,0.5); color: #fff; font-size: 10px; padding: 2px 8px; border-radius: 10px; }
+  .house-img .room-badge { position: absolute; bottom: 6px; left: 6px; background: rgba(255,255,255,0.9); color: #333; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 6px; }
+  .house-info { flex: 1; padding: 10px 12px; display: flex; flex-direction: column; }
+  .house-title { font-size: 14px; font-weight: 600; color: #222; line-height: 1.3; }
+  .house-desc { font-size: 11px; color: var(--text-light); margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .house-tags { display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap; }
+  .h-tag { font-size: 10px; padding: 2px 6px; border-radius: 4px; }
+  .h-tag-blue { background: #e8f0fe; color: #1a6fd4; }
+  .h-tag-gray { background: #f5f5f5; color: #666; }
+  .h-tag-green { background: #e6f7ef; color: #27ae60; }
+  .h-tag-yellow { background: #fff8e6; color: #e67e22; }
+  .h-tag-orange { background: #fff0e6; color: #e65100; }
+  .h-tag-red { background: #fde8e8; color: #c0392b; }
+  .house-bottom { display: flex; align-items: flex-end; justify-content: space-between; margin-top: auto; }
+  .house-price { font-size: 17px; font-weight: 700; color: var(--red); }
+  .house-price span { font-size: 11px; font-weight: 400; color: var(--text-light); }
+  .house-price .policy-tag { font-size: 10px; color: #27ae60; font-weight: 600; white-space: nowrap; }
+  .house-fees { font-size: 10px; color: var(--text-light); margin-top: 1px; }
+  .house-arrow { color: #ccc; font-size: 16px; }
+
+  .fee-compare { background: #fff; margin: 0 16px 12px; border-radius: var(--radius); padding: 14px; box-shadow: var(--shadow); }
+  .fee-compare-title { font-size: 13px; font-weight: 700; color: #222; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+  .fee-compare-row { display: flex; align-items: center; padding: 7px 0; border-bottom: 1px solid #f5f5f5; font-size: 11px; }
+  .fee-compare-row:last-child { border-bottom: none; }
+  .fee-compare-park { width: 56px; font-weight: 600; color: #222; flex-shrink: 0; }
+  .fee-compare-detail { flex: 1; color: #666; line-height: 1.5; font-size: 10px; }
+  .fee-compare-price { color: var(--red); font-weight: 700; font-size: 12px; flex-shrink: 0; white-space: nowrap; text-align: right; }
+  .fee-compare-policy { color: #27ae60; font-size: 10px; flex-shrink: 0; white-space: nowrap; text-align: right; font-weight: 600; }
+  /* 费用计算器 */
+  .calc-card { background: linear-gradient(135deg, #f0f4ff, #e8f0fe); margin: 0 16px 12px; border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); border: 1px solid #d0ddf5; }
+  .calc-title { font-size: 14px; font-weight: 700; color: #1a6fd4; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+  .calc-sub { font-size: 11px; color: #999; margin-bottom: 12px; }
+  .calc-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .calc-row label { font-size: 13px; color: #555; font-weight: 600; white-space: nowrap; }
+  .calc-input { flex: 1; height: 40px; border: 1px solid #d0ddf5; border-radius: 8px; padding: 0 12px; font-size: 16px; color: #222; outline: none; background: #fff; text-align: center; font-weight: 700; }
+  .calc-input:focus { border-color: #1a6fd4; box-shadow: 0 0 0 3px rgba(26,111,212,0.1); }
+  .calc-unit { font-size: 13px; color: #666; font-weight: 600; }
+  .calc-quick { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+  .calc-quick-chip { padding: 5px 12px; background: #fff; border: 1px solid #d0ddf5; border-radius: 16px; font-size: 12px; color: #1a6fd4; cursor: pointer; font-weight: 600; transition: all .15s; }
+  .calc-quick-chip.active { background: #1a6fd4; color: #fff; border-color: #1a6fd4; }
+  .calc-select { flex: 1; height: 40px; border: 1px solid #d0ddf5; border-radius: 8px; padding: 0 10px; font-size: 14px; color: #222; outline: none; background: #fff; }
+  .calc-result { background: #fff; border-radius: 10px; padding: 14px; margin-top: 12px; display: none; border: 1px solid #d0ddf5; }
+  .calc-result.show { display: block; animation: fadeIn .3s ease-out; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+  .calc-result-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; font-size: 13px; color: #555; }
+  .calc-result-row.total { border-top: 1px dashed #e0e0e0; margin-top: 6px; padding-top: 10px; font-size: 16px; font-weight: 700; color: #1a6fd4; }
+  .calc-result-val { font-weight: 600; color: #222; }
+  .calc-result-total { font-size: 22px; font-weight: 800; color: #1a6fd4; }
+  .calc-daily { text-align: right; font-size: 11px; color: #999; margin-top: 6px; }
+  .calc-daily b { color: #1a6fd4; }
+  .calc-policy-tip { font-size: 11px; color: #d48806; background: #fffdf5; border-radius: 6px; padding: 6px 10px; margin-top: 8px; text-align: center; }
+  .calc-standard-ref { font-size: 11px; color: #999; text-align: right; margin-top: 6px; padding-top: 6px; border-top: 1px dashed #e8e8e8; }
+  .calc-standard-ref b { color: #666; }
+
+  .fee-note { background: #e8f0fe; margin: 0 16px 12px; border-radius: var(--radius); padding: 12px 14px; border: 1px solid #c5d9f5; display: flex; gap: 10px; align-items: flex-start; }
+  .fee-note-icon { font-size: 18px; flex-shrink: 0; }
+  .fee-note-text { font-size: 11px; color: #3a6eb5; line-height: 1.8; }
+  .fee-note-text b { color: #1a6fd4; }
+
+  .legend-bar { display: flex; gap: 12px; padding: 4px 16px 10px; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: #666; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .legend-dot.blue { background: #1565c0; }
+  .legend-dot.white { background: #fff; border: 1.5px solid #ccc; }
+  .legend-dot.green { background: #27ae60; }
+  .legend-dot.yellow { background: #f0a500; }
+  .legend-dot.orange { background: #e67e22; }
+  .legend-dot.gray { background: #999; }
+
+  /* 楼层选房网格（电影院选座风格） */
+  .floor-grid { margin: 12px 16px; background: #f0f2f8; border-radius: 14px; padding: 14px 12px 18px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .floor-grid-inner { min-width: fit-content; }
+  .floor-screen { text-align: center; padding: 5px 0 8px; margin-bottom: 14px; }
+  .floor-screen span { display: inline-block; padding: 3px 24px; background: linear-gradient(180deg, #e8e8e8 0%, #f5f5f5 100%); border-radius: 2px; font-size: 10px; color: #999; letter-spacing: 2px; }
+  .floor-row { display: flex; align-items: center; margin-bottom: 10px; min-width: max-content; }
+  .floor-label { width: 40px; font-size: 12px; font-weight: 700; color: #555; text-align: center; flex-shrink: 0; letter-spacing: 0.5px; }
+  .floor-cells { display: flex; gap: 8px; flex-wrap: nowrap; }
+  .floor-cell { width: 86px; height: 56px; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.12s, box-shadow 0.12s; position: relative; overflow: hidden; }
+  .floor-cell:active { transform: scale(0.93); }
+  .floor-cell .cell-room { font-weight: 700; font-size: 13px; line-height: 1.2; max-width: 78px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .floor-cell .cell-area { font-size: 10px; margin-top: 2px; opacity: 0.75; font-weight: 500; }
+  .floor-cell .cell-tag { position: absolute; top: 4px; right: 4px; font-size: 8px; padding: 1px 4px; border-radius: 3px; font-weight: 600; }
+  /* 可租 — 白色底色蓝色边框 */
+  .cell-avail { background: #fff; border: 2px solid #1a6fd4; color: #1a6fd4; box-shadow: 0 2px 6px rgba(26,111,212,0.12); }
+  .cell-avail .cell-tag { background: #e8f0fe; color: #1a6fd4; }
+  .cell-avail:hover { border-color: #0d4fa0; box-shadow: 0 4px 14px rgba(26,111,212,0.2); }
+  /* 即将可租 — 绿色 */
+  .cell-soon { background: #e6f7ef; border: 2px solid #27ae60; color: #1a7a3a; }
+  .cell-soon .cell-tag { background: #d4f0e0; color: #1a7a3a; }
+  /* 即将交付 — 橙色 */
+  .cell-deliver { background: #fff6ed; border: 2px solid #e67e22; color: #a0681a; }
+  .cell-deliver .cell-tag { background: #fce8d4; color: #a0681a; }
+  /* 意向洽谈中 — 黄色 */
+  .cell-intent { background: #fffde7; border: 2px solid #f0a500; color: #8a6d00; }
+  .cell-intent .cell-tag { background: #fef3c0; color: #8a6d00; }
+
+  /* 矩阵布局（碳湾园） */
+  .floor-matrix { padding: 14px 8px 18px; }
+  .matrix-wrap { min-width: fit-content; }
+  .matrix-row { display: flex; align-items: center; margin-bottom: 5px; }
+  .matrix-header { margin-bottom: 10px; }
+  .matrix-corner { width: 34px; flex-shrink: 0; }
+  .matrix-col-hdr { width: 64px; margin: 0 3px; text-align: center; font-size: 12px; font-weight: 700; color: #444; flex-shrink: 0; }
+  .matrix-row-hdr { width: 34px; font-size: 11px; font-weight: 700; color: #888; text-align: center; flex-shrink: 0; }
+  .matrix-cell { width: 64px; height: 50px; margin: 0 3px; flex-shrink: 0; border-radius: 8px; font-size: 11px; }
+  .matrix-cell .cell-room { font-size: 12px; }
+  .cell-empty { background: #eaecef; border: 1px dashed #ccc; color: #bbb; cursor: default; box-shadow: none; }
+  .cell-empty:active { transform: none; }
+
+  .park-detail-hero { height: 140px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff; }
+  .park-detail-hero h2 { font-size: 20px; font-weight: 700; }
+  .park-detail-hero p { font-size: 12px; opacity: 0.85; margin-top: 4px; }
+  .park-detail-info { background: #fff; margin: -16px 16px 0; border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); }
+  .park-detail-info .info-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 12px; }
+  .info-item { text-align: center; }
+  .info-val { font-size: 16px; font-weight: 700; color: #222; }
+  .info-key { font-size: 10px; color: var(--text-light); margin-top: 2px; }
+  .park-detail-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.7; padding-top: 10px; border-top: 1px solid var(--border); }
+
+  /* 图片缩略画廊 */
+  .image-gallery { margin: 6px 16px 0; }
+  .gallery-cat { margin-bottom: 10px; }
+  .gallery-cat-title { font-size: 13px; font-weight: 700; color: #333; margin: 0 0 6px 2px; display: flex; align-items: center; gap: 6px; }
+  .gallery-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch; }
+  .gallery-item { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+  .gallery-thumb { width: 110px; height: 82px; border-radius: 8px; object-fit: cover; flex-shrink: 0; cursor: pointer; border: 2px solid transparent; transition: border-color .15s; background: #f0f2f8; }
+  .gallery-thumb:active, .gallery-thumb:hover { border-color: #1a6fd4; }
+  .gallery-cap { font-size: 10px; color: #888; text-align: center; margin-top: 3px; max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  /* Lightbox */
+  .lb-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; height: 100dvh; background: rgba(0,0,0,.94); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
+  .lb-overlay.show { display: flex; }
+  .lb-overlay:active { } /* prevent iOS double-tap zoom */
+  .lb-img { max-width: 94vw; max-height: 78vh; max-height: 78dvh; border-radius: 8px; object-fit: contain; box-shadow: 0 8px 40px rgba(0,0,0,.5); }
+  .lb-close { position: absolute; top: calc(env(safe-area-inset-top) + 16px); right: 16px; width: 40px; height: 40px; background: rgba(255,255,255,.18); border: none; border-radius: 50%; color: #fff; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10000; }
+  .lb-cap { color: #ccc; font-size: 13px; margin-top: 14px; text-align: center; padding: 0 20px; }
+  .lb-prev, .lb-next { position: absolute; top: 50%; transform: translateY(-50%); width: 36px; height: 36px; background: rgba(255,255,255,.15); border: none; border-radius: 50%; color: #fff; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10000; }
+  .lb-prev { left: 10px; }
+  .lb-next { right: 10px; }
+
+  .facility-card { background: #fff; margin: 12px 16px 0; border-radius: var(--radius); padding: 14px; box-shadow: var(--shadow); }
+  .facility-title { font-size: 13px; font-weight: 700; color: #222; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+  .facility-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .facility-item { background: #f8f9fc; border-radius: 8px; padding: 10px; }
+  .facility-item .fi-label { font-size: 10px; color: #999; margin-bottom: 2px; }
+  .facility-item .fi-val { font-size: 12px; color: #333; font-weight: 500; line-height: 1.4; }
+
+  .policy-card { background: #fff; margin: 0 16px 10px; border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); display: flex; gap: 12px; cursor: pointer; }
+  .policy-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+  .policy-body h4 { font-size: 14px; font-weight: 600; color: #222; margin-bottom: 4px; }
+  .policy-body p { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+
+  .policy-doc-card { background: #fff; margin: 0 16px 10px; border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); display: flex; gap: 12px; align-items: flex-start; cursor: pointer; border-left: 4px solid #e74c3c; }
+  .policy-doc-card .doc-icon { width: 46px; height: 46px; border-radius: 10px; background: #e74c3c; display: flex; align-items: center; justify-content: center; font-size: 22px; color: #fff; flex-shrink: 0; }
+  .policy-doc-card .doc-body { flex: 1; min-width: 0; }
+  .policy-doc-card .doc-body h4 { font-size: 14px; font-weight: 600; color: #222; margin-bottom: 6px; }
+  .policy-doc-card .doc-body p { font-size: 11px; color: var(--text-secondary); line-height: 1.6; }
+  .policy-doc-card .doc-meta { font-size: 10px; color: var(--text-light); margin-top: 6px; display: flex; gap: 12px; }
+  .policy-doc-card .doc-dl-btn { display: inline-flex; align-items: center; gap: 4px; margin-top: 8px; padding: 6px 14px; border-radius: 16px; background: var(--blue); color: #fff; font-size: 11px; font-weight: 600; text-decoration: none; cursor: pointer; border: none; }
+  @media (max-width: 480px) {
+    .policy-doc-card .doc-dl-btn { display: none; }
+    .policy-doc-card .doc-dl-tip { display: inline-flex !important; }
+  }
+  .policy-doc-card .doc-dl-tip { display: none; align-items: center; gap: 4px; margin-top: 8px; padding: 6px 14px; border-radius: 16px; background: #f0f0f0; color: #999; font-size: 11px; }
+  .policy-doc-card .doc-keywords { display: flex; gap: 5px; margin-top: 6px; flex-wrap: wrap; }
+  .policy-doc-card .doc-kw { font-size: 10px; padding: 2px 8px; border-radius: 10px; background: #fff0e6; color: #e65100; }
+
+  /* PDF预览弹窗 */
+  #pdfViewerOverlay { display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,.85); flex-direction:column; }
+  #pdfViewerOverlay.active { display:flex; }
+  #pdfViewerHeader { display:flex; align-items:center; justify-content:space-between; padding:calc(env(safe-area-inset-top) + 10px) 16px 10px; background:#1a2a4a; color:#fff; flex-shrink:0; }
+  #pdfViewerHeader h3 { font-size:14px; font-weight:600; margin:0; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  #pdfViewerHeader .pdf-header-btns { display:flex; gap:8px; flex-shrink:0; margin-left:12px; }
+  #pdfViewerHeader .pdf-header-btns a, #pdfViewerHeader .pdf-header-btns button { padding:5px 12px; border-radius:14px; font-size:12px; font-weight:600; border:none; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; gap:4px; }
+  #pdfViewerHeader .btn-dl { background:#e74c3c; color:#fff; }
+  #pdfViewerHeader .btn-close { background:rgba(255,255,255,.15); color:#fff; }
+  #pdfViewerFrame { flex:1; border:none; width:100%; background:#fff; }
+
+  .campus-gallery { margin: 0 16px; border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); position: relative; }
+  .campus-gallery img { width: 100%; display: block; object-fit: cover; }
+  .campus-gallery .gallery-label { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.55)); color: #fff; padding: 16px 12px 10px; font-size: 13px; font-weight: 500; }
+  .campus-gallery .gallery-dots { position: absolute; top: 10px; right: 12px; display: flex; gap: 4px; }
+  .campus-gallery .gallery-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.5); }
+  .campus-gallery .gallery-dot.active { background: #fff; }
+
+  .campus-placeholder { margin: 0 16px; border-radius: var(--radius); background: linear-gradient(135deg, #e8f0fe, #d0e0f8); padding: 40px 20px; text-align: center; color: #1a6fd4; box-shadow: var(--shadow); }
+  .campus-placeholder .ph-icon { font-size: 40px; margin-bottom: 10px; }
+  .campus-placeholder .ph-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .campus-placeholder .ph-sub { font-size: 12px; opacity: 0.6; }
+
+  .indicator-card { background: #fff; margin: 12px 16px 0; border-radius: var(--radius); padding: 14px; box-shadow: var(--shadow); }
+  .indicator-title { font-size: 13px; font-weight: 700; color: #222; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+  .indicator-table { width: 100%; border-collapse: collapse; font-size: 10px; }
+  .indicator-table th { background: #f5f6fa; padding: 8px 6px; text-align: left; font-weight: 600; color: #555; border-bottom: 2px solid #e0e0e0; white-space: nowrap; }
+  .indicator-table td { padding: 8px 6px; border-bottom: 1px solid #f0f0f0; color: #333; line-height: 1.5; }
+  .indicator-table .amt { color: #e84040; font-weight: 600; white-space: nowrap; text-align: center; }
+  .indicator-note { font-size: 10px; color: #999; margin-top: 8px; line-height: 1.6; }
+
+  .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 500; align-items: flex-end; justify-content: center; max-width: 480px; left: 50%; transform: translateX(-50%); }
+  .modal.open { display: flex; }
+  .modal-content { background: #fff; width: 100%; border-radius: 20px 20px 0 0; padding: 24px 20px 32px; animation: slideUp 0.3s ease; }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .modal-title { font-size: 18px; font-weight: 700; text-align: center; margin-bottom: 20px; }
+  .form-group { margin-bottom: 14px; }
+  .form-label { font-size: 13px; color: #555; margin-bottom: 6px; display: block; }
+  .form-label .req { color: var(--red); }
+  .form-input, .form-select { width: 100%; padding: 11px 14px; border: 1.5px solid #e0e0e0; border-radius: 10px; font-size: 14px; outline: none; transition: border-color 0.2s; background: #fff; }
+  .form-input:focus, .form-select:focus { border-color: var(--blue); }
+  .form-select { appearance: none; }
+  .btn-primary { width: 100%; padding: 14px; border-radius: 12px; border: none; background: linear-gradient(135deg, #1a6fd4, #2389f5); color: #fff; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 6px; }
+  .btn-primary:active { opacity: 0.85; }
+
+  .toast { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.75); color: #fff; padding: 12px 24px; border-radius: 10px; font-size: 14px; z-index: 999; display: none; white-space: nowrap; }
+  .toast.show { display: block; animation: fadeInOut 2.5s ease forwards; }
+  @keyframes fadeInOut { 0%,100% { opacity: 0; } 15%,80% { opacity: 1; } }
+
+  .float-contact { position: fixed; bottom: 80px; right: 20px; z-index: 150; max-width: 480px; }
+  .float-btn { width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #1a6fd4, #2389f5); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 22px; box-shadow: 0 4px 16px rgba(26,111,212,0.4); cursor: pointer; border: none; }
+
+  .empty { text-align: center; padding: 40px 20px; color: #bbb; }
+  .empty-icon { font-size: 48px; margin-bottom: 10px; }
+
+  .park-tanwan .park-card-header { background: linear-gradient(135deg, #e65100, #ff8f00); }
+  .park-tiankai .park-card-header { background: linear-gradient(135deg, #1565c0, #42a5f5); }
+  .park-xiqing .park-card-header { background: linear-gradient(135deg, #0a3d8f, #1a6fd4); }
+  .park-jinnan .park-card-header { background: linear-gradient(135deg, #0d4fa0, #2389f5); }
+  .park-nankai .park-card-header { background: linear-gradient(135deg, #1a6fd4, #56b4fc); }
+
+  .detail-tanwan { background: linear-gradient(135deg, #e65100, #ff8f00); }
+  .detail-tiankai { background: linear-gradient(135deg, #1565c0, #42a5f5); }
+  .detail-xiqing { background: linear-gradient(135deg, #0a3d8f, #1a6fd4); }
+  .detail-jinnan { background: linear-gradient(135deg, #0d4fa0, #2389f5); }
+  .detail-nankai { background: linear-gradient(135deg, #1a6fd4, #56b4fc); }
+
+  .price-orig { text-decoration: line-through; color: #999; font-size: 11px; margin-right: 4px; }
+  .price-policy { color: #27ae60; font-weight: 700; }
+
+  .intro-section { background: #fff; margin: 0 16px 12px; border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow); }
+  .intro-section .intro-title { font-size: 15px; font-weight: 700; color: var(--blue); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+  .intro-section .intro-title::before { content: ''; display: block; width: 3px; height: 16px; background: var(--blue); border-radius: 2px; }
+  .intro-section .intro-text { font-size: 12px; color: var(--text-secondary); line-height: 1.8; }
+  .intro-highlights { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .intro-highlight-item { font-size: 10px; padding: 3px 10px; border-radius: 12px; background: var(--blue-light); color: var(--blue); white-space: nowrap; }
+
+  .data-section { background: #fff; margin: 0 16px 12px; border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow); }
+  .data-section .data-title { font-size: 15px; font-weight: 700; color: var(--blue); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+  .data-section .data-title::before { content: ''; display: block; width: 3px; height: 16px; background: var(--blue); border-radius: 2px; }
+  .data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .data-card { background: #f6f9ff; border-radius: 10px; padding: 14px 12px; text-align: center; }
+  .data-card .data-num { font-size: 22px; font-weight: 800; color: var(--blue); line-height: 1.2; }
+  .data-card .data-label { font-size: 11px; color: var(--text-secondary); margin-top: 4px; line-height: 1.4; }
+
+  .benefit-section { background: #fff; margin: 0 16px 12px; border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow); }
+  .benefit-section .benefit-title { font-size: 15px; font-weight: 700; color: var(--blue); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+  .benefit-section .benefit-title::before { content: ''; display: block; width: 3px; height: 16px; background: var(--blue); border-radius: 2px; }
+  .benefit-item { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 1px solid #f5f5f5; }
+  .benefit-item:last-child { border-bottom: none; }
+  .benefit-item .benefit-icon { width: 32px; height: 32px; background: var(--blue-light); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+  .benefit-item .benefit-text { font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
+  .benefit-item .benefit-text strong { color: #222; }
+
+  /* 园区分布地图 */
+  .map-section { background: #fff; margin: 0 16px 12px; border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow); }
+  .map-section .map-title { font-size: 15px; font-weight: 700; color: var(--blue); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+  .map-section .map-title::before { content: ''; display: block; width: 3px; height: 16px; background: var(--blue); border-radius: 2px; }
+  #campusMap { border-radius: 8px; overflow: hidden; }
+  #campusMap svg { width: 100%; height: auto; display: block; }
+  .campus-marker-group { cursor: pointer; }
+  .campus-marker-group:hover circle { filter: brightness(1.2); }
+  .campus-marker-group:active { opacity: 0.8; }
+  .map-legend { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; font-size: 11px; color: var(--text-secondary); }
+  .map-legend-item { display: flex; align-items: center; gap: 4px; }
+  .map-legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .map-legend-dot.nankai { background: #e84040; }
+  .map-legend-dot.jinnan { background: #27ae60; }
+  .map-legend-dot.xiqing { background: #e67e22; }
+</style>
+<script src="https://beacon.cdn.qq.com/sdk/4.5.9/beacon_web.min.js"></script>
+<script>
+(function(){
+  try{
+    var beacon=new BeaconAction({
+      appkey:'0WEB06U85YBSLJNL',
+      versionCode:'1.0.0',
+      channelID:'share',
+      delay:1000,
+      sessionDuration:30*60*1000,
+      isOversea:false,
+      needReportRqdEvent:false
+    });
+    beacon.onDirectUserAction('preview_page_view',{
+      'url':location.href,
+      'referrer':document.referrer,
+      'title':document.title,
+      'sandbox_id':'c0977eb411ff490183d35652abe24e5f'
+    });
+  }catch(e){}
+})();
+</script></head>
+<body>
+
+<div class="top-bar" id="topBar">
+  <span class="back-btn" id="backBtn" onclick="goBack()" style="display:none">&lsaquo;</span>
+  <h1 id="topTitle">天大科技园</h1>
+  <span class="right-btn"></span>
+</div>
+
+<!-- ========== 首页 ========== -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <h2>天大科技园 · 企业选址平台</h2>
+    <p>五大园区 · 科创孵化 · 精装拎包入驻</p>
+    <div class="search-box">
+      <input type="text" placeholder="搜索园区、面积、楼层..." id="homeSearch" oninput="doHomeSearch()">
+      <button class="search-btn" onclick="doHomeSearch()">搜索</button>
+    </div>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat-item"><div class="stat-num">1000+</div><div class="stat-label">入驻企业</div></div>
+    <div class="stat-item"><div class="stat-num">5</div><div class="stat-label">大园区</div></div>
+    <div class="stat-item"><div class="stat-num">10万</div><div class="stat-label">运营面积(m²)</div></div>
+    <div class="stat-item"><div class="stat-num">5000万+</div><div class="stat-label">政策申请</div></div>
+  </div>
+
+  <!-- ===== 天大科技园简介 ===== -->
+  <div class="intro-section">
+    <div class="intro-title">关于天大科技园</div>
+    <div class="intro-text">
+      天大科技园是依托天津大学学科优势与科研资源打造的高水平科创载体，目前在天津设有<strong>碳湾园、天开园、西青园、津南园、南开园</strong>五大园区，总运营面积超<strong>10万平方米</strong>，累计服务入驻企业<strong>超1000家</strong>，累计申请各类政策资金<strong>超5000万元</strong>。
+    </div>
+    <div class="intro-text" style="margin-top:8px">
+      园区聚焦新能源新材料、智能科技、生物医药、碳产业链等前沿领域，融合"基金+科技园"模式，打造<strong>创业孵化—研发实验—产业办公—政策申报</strong>全链条服务体系。全部精装拎包入驻，配套设施完善，是天大校友创业、科技企业选址的首选平台。
+    </div>
+    <div class="intro-highlights">
+      <span class="intro-highlight-item">五大园区覆盖</span>
+      <span class="intro-highlight-item">精装拎包入驻</span>
+      <span class="intro-highlight-item">最高免租政策</span>
+      <span class="intro-highlight-item">全链条服务体系</span>
+      <span class="intro-highlight-item">天大校友首选</span>
+    </div>
+  </div>
+
+  <!-- ===== 园区分布地图 ===== -->
+  <div class="map-section">
+    <div class="map-title">天津市园区分布</div>
+    <div id="campusMap">
+      <svg viewBox="0 0 680 420" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <filter id="mk-shadow"><feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-color="#000" flood-opacity="0.25"/></filter>
+          <filter id="mk-shadow-sm"><feDropShadow dx="0" dy="1.5" stdDeviation="2" flood-color="#000" flood-opacity="0.2"/></filter>
+        </defs>
+        <!-- 背景 -->
+        <rect x="0" y="0" width="680" height="420" fill="#f0f4f8" rx="8"/>
+        <!-- 网格 -->
+        <pattern id="grd" width="50" height="50" patternUnits="userSpaceOnUse">
+          <path d="M50 0L0 0 0 50" fill="none" stroke="#dde2ea" stroke-width="0.5"/>
+        </pattern>
+        <rect x="0" y="0" width="680" height="420" fill="url(#grd)" rx="8"/>
+        <!-- 西青区底色 -->
+        <path d="M8 30 L200 15 L230 180 L190 400 L8 410 Z" fill="#fef3e0" opacity="0.65"/>
+        <path d="M8 30 L200 15 L230 180 L190 400 L8 410 Z" fill="none" stroke="#e67e22" stroke-width="1.5" stroke-dasharray="7 5" opacity="0.45"/>
+        <text x="75" y="230" fill="#e67e22" font-size="17" font-weight="700" opacity="0.35" font-family="sans-serif">西青区</text>
+        <!-- 南开区底色 -->
+        <path d="M155 12 L420 8 L430 200 L370 310 L180 290 L145 170 Z" fill="#fde8e8" opacity="0.65"/>
+        <path d="M155 12 L420 8 L430 200 L370 310 L180 290 L145 170 Z" fill="none" stroke="#e84040" stroke-width="1.5" stroke-dasharray="7 5" opacity="0.45"/>
+        <text x="250" y="150" fill="#e84040" font-size="17" font-weight="700" opacity="0.35" font-family="sans-serif">南开区</text>
+        <!-- 津南区底色 -->
+        <path d="M260 10 L672 10 L672 415 L200 408 L230 280 L320 270 L370 170 Z" fill="#e8f5e9" opacity="0.65"/>
+        <path d="M260 10 L672 10 L672 415 L200 408 L230 280 L320 270 L370 170 Z" fill="none" stroke="#27ae60" stroke-width="1.5" stroke-dasharray="7 5" opacity="0.45"/>
+        <text x="440" y="140" fill="#27ae60" font-size="17" font-weight="700" opacity="0.35" font-family="sans-serif">津南区</text>
+        <!-- 连接道路 -->
+        <path d="M60 195 L178 48 L560 248 L615 370" stroke="#bcc4d2" stroke-width="1.8" stroke-dasharray="4 5" fill="none"/>
+        <path d="M178 48 L230 65" stroke="#bcc4d2" stroke-width="1.2" stroke-dasharray="3 4" fill="none"/>
+        <!-- 天津标注 -->
+        <rect x="300" y="388" width="80" height="22" rx="11" fill="#fff" opacity="0.75"/>
+        <text x="340" y="403" fill="#888" font-size="11" text-anchor="middle" font-family="sans-serif">天津市</text>
+        <!-- ===== 园区标记 ===== -->
+        <!-- 碳湾园 -->
+        <g class="campus-marker-group" onclick="openParkDetail('tanwan')">
+          <circle cx="615" cy="370" r="19" fill="#27ae60" stroke="#fff" stroke-width="3.5" filter="url(#mk-shadow)"/>
+          <text x="615" y="375" fill="#fff" font-size="12" font-weight="700" text-anchor="middle" font-family="sans-serif">碳</text>
+          <text x="615" y="404" fill="#222" font-size="11" font-weight="600" text-anchor="middle" font-family="sans-serif">碳湾园</text>
+          <text x="615" y="418" fill="#999" font-size="9" text-anchor="middle" font-family="sans-serif">津南区</text>
+        </g>
+        <!-- 津南园 -->
+        <g class="campus-marker-group" onclick="openParkDetail('jinnan')">
+          <circle cx="560" cy="248" r="19" fill="#27ae60" stroke="#fff" stroke-width="3.5" filter="url(#mk-shadow)"/>
+          <text x="560" y="253" fill="#fff" font-size="12" font-weight="700" text-anchor="middle" font-family="sans-serif">津</text>
+          <text x="560" y="282" fill="#222" font-size="11" font-weight="600" text-anchor="middle" font-family="sans-serif">津南园</text>
+          <text x="560" y="296" fill="#999" font-size="9" text-anchor="middle" font-family="sans-serif">津南区</text>
+        </g>
+        <!-- 南开园 -->
+        <g class="campus-marker-group" onclick="openParkDetail('nankai')">
+          <circle cx="230" cy="65" r="16" fill="#e84040" stroke="#fff" stroke-width="3" filter="url(#mk-shadow-sm)"/>
+          <text x="230" y="70" fill="#fff" font-size="11" font-weight="700" text-anchor="middle" font-family="sans-serif">南</text>
+          <text x="230" y="96" fill="#222" font-size="10" font-weight="600" text-anchor="middle" font-family="sans-serif">南开园</text>
+          <text x="230" y="110" fill="#999" font-size="8" text-anchor="middle" font-family="sans-serif">南开区</text>
+        </g>
+        <!-- 天开园 -->
+        <g class="campus-marker-group" onclick="openParkDetail('tiankai')">
+          <circle cx="178" cy="48" r="16" fill="#e84040" stroke="#fff" stroke-width="3" filter="url(#mk-shadow-sm)"/>
+          <text x="178" y="53" fill="#fff" font-size="11" font-weight="700" text-anchor="middle" font-family="sans-serif">天</text>
+          <text x="178" y="34" fill="#222" font-size="10" font-weight="600" text-anchor="middle" font-family="sans-serif">天开园</text>
+          <text x="178" y="20" fill="#999" font-size="8" text-anchor="middle" font-family="sans-serif">南开区</text>
+        </g>
+        <!-- 西青园 -->
+        <g class="campus-marker-group" onclick="openParkDetail('xiqing')">
+          <circle cx="60" cy="195" r="16" fill="#e67e22" stroke="#fff" stroke-width="3" filter="url(#mk-shadow-sm)"/>
+          <text x="60" y="200" fill="#fff" font-size="11" font-weight="700" text-anchor="middle" font-family="sans-serif">西</text>
+          <text x="60" y="226" fill="#222" font-size="10" font-weight="600" text-anchor="middle" font-family="sans-serif">西青园</text>
+          <text x="60" y="240" fill="#999" font-size="8" text-anchor="middle" font-family="sans-serif">西青区</text>
+        </g>
+      </svg>
+    </div>
+    <div class="map-legend">
+      <span class="map-legend-item"><span class="map-legend-dot nankai"></span> 南开区 · 2园</span>
+      <span class="map-legend-item"><span class="map-legend-dot jinnan"></span> 津南区 · 2园</span>
+      <span class="map-legend-item"><span class="map-legend-dot xiqing"></span> 西青区 · 1园</span>
+    </div>
+  </div>
+
+  <!-- ===== 服务成果 ===== -->
+  <div class="data-section">
+    <div class="data-title">服务成果</div>
+    <div class="data-grid">
+      <div class="data-card">
+        <div class="data-num">5000万+</div>
+        <div class="data-label">200+企业累计获得<br>政策补贴</div>
+      </div>
+      <div class="data-card">
+        <div class="data-num">百万级</div>
+        <div class="data-label">近10家入驻企业<br>斩获百万级补贴</div>
+      </div>
+      <div class="data-card">
+        <div class="data-num">108%</div>
+        <div class="data-label">入驻企业平均<br>3年营收增长</div>
+      </div>
+      <div class="data-card">
+        <div class="data-num">5.5亿</div>
+        <div class="data-label">园区企业累计<br>融资规模</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 加入天大科技园您将获得 ===== -->
+  <div class="benefit-section">
+    <div class="benefit-title">加入天大科技园，您将获得</div>
+    <div class="benefit-item">
+      <div class="benefit-icon">&#127891;</div>
+      <div class="benefit-text"><strong>顶尖高校技术策源</strong> — 天大教授团队0距离对接</div>
+    </div>
+    <div class="benefit-item">
+      <div class="benefit-icon">&#128176;</div>
+      <div class="benefit-text"><strong>资本不缺位</strong> — 从金种子到并购基金全程覆盖</div>
+    </div>
+    <div class="benefit-item">
+      <div class="benefit-icon">&#128203;</div>
+      <div class="benefit-text"><strong>政策直达</strong> — 专业团队免费辅导，不花冤枉钱</div>
+    </div>
+    <div class="benefit-item">
+      <div class="benefit-icon">&#127968;</div>
+      <div class="benefit-text"><strong>空间无忧</strong> — 从工位到厂房，从初创到上市</div>
+    </div>
+    <div class="benefit-item">
+      <div class="benefit-icon">&#129309;</div>
+      <div class="benefit-text"><strong>生态共生</strong> — 300+校友企业，上下游协同</div>
+    </div>
+  </div>
+
+
+  <!-- 精选房源 -->
+  <div class="section-header">
+    <span class="section-title">精选房源</span>
+    <span class="section-more" onclick="switchTab(1)">更多 &rsaquo;</span>
+  </div>
+  <div class="house-list" id="hotHouses"></div>
+</div>
+
+<!-- ========== 房源列表 ========== -->
+<div class="page" id="page-list">
+  <div style="padding:12px 16px;background:#fff;border-bottom:1px solid #f0f0f0">
+    <div style="background:#f5f6fa;border-radius:22px;display:flex;align-items:center;padding:8px 14px;gap:8px">
+      <span style="font-size:16px">&#128269;</span>
+      <input type="text" placeholder="搜索楼层、房号、面积" style="flex:1;border:none;background:transparent;font-size:14px;outline:none;color:#333" id="listSearch" oninput="filterHouseList()">
+    </div>
+  </div>
+  <div class="park-filter-scroll" id="listFilterBar">
+    <div class="park-filter-chip active" onclick="filterHouseByPark('all',this)">全部园区</div>
+    <div class="park-filter-chip" onclick="filterHouseByPark('tanwan',this)">碳湾园</div>
+    <div class="park-filter-chip" onclick="filterHouseByPark('tiankai',this)">天开园</div>
+    <div class="park-filter-chip" onclick="filterHouseByPark('xiqing',this)">西青园</div>
+    <div class="park-filter-chip" onclick="filterHouseByPark('jinnan',this)">津南园</div>
+    <div class="park-filter-chip" onclick="filterHouseByPark('nankai',this)">南开园</div>
+  </div>
+  <div style="padding:6px 16px;font-size:12px;color:#999" id="houseCount">共 <b>78</b> 套房源</div>
+  <div class="house-list" id="allHouseList"></div>
+</div>
+
+<!-- ========== 园区详情 ========== -->
+<div class="page" id="page-detail"></div>
+
+<!-- ========== 园区详情 ========== -->
+<div class="page" id="page-park-tab">
+  <!-- 五大园区 -->
+  <div class="section-header">
+    <span class="section-title">五大园区</span>
+  </div>
+  <div class="park-filter-scroll" id="parkTabFilterScroll">
+    <div class="park-filter-chip active" onclick="filterParkTab('all', this)">全部园区</div>
+    <div class="park-filter-chip" onclick="filterParkTab('tanwan', this)">碳湾园</div>
+    <div class="park-filter-chip" onclick="filterParkTab('tiankai', this)">天开园</div>
+    <div class="park-filter-chip" onclick="filterParkTab('xiqing', this)">西青园</div>
+    <div class="park-filter-chip" onclick="filterParkTab('jinnan', this)">津南园</div>
+    <div class="park-filter-chip" onclick="filterParkTab('nankai', this)">南开园</div>
+  </div>
+  <div id="parkTabCards"></div>
+</div>
+
+<!-- ========== 费用页 ========== -->
+<div class="page" id="page-fee">
+  <!-- 各园区费用一览表 -->
+  <div class="fee-compare">
+    <div class="fee-compare-title">&#128203; 各园区费用一览</div>
+    <div class="fee-compare-row" style="background:#f8f9fc;font-weight:600;font-size:10px;color:#999">
+      <span class="fee-compare-park">园区</span>
+      <span class="fee-compare-detail">费用构成（服务费+物业费）</span>
+      <span class="fee-compare-policy" style="color:#999;font-size:10px">政策优惠</span>
+    </div>
+    <div class="fee-compare-row">
+      <span class="fee-compare-park">碳湾园</span>
+      <span class="fee-compare-detail">1.0元/天(房租)+0.5~0.6元/天(物业含冷暖)</span>
+      <span class="fee-compare-policy">硕果计划<br>最高免租</span>
+    </div>
+    <div class="fee-compare-row">
+      <span class="fee-compare-park">天开园</span>
+      <span class="fee-compare-detail">服务2.5元/天 + 物业0.8元/天</span>
+      <span class="fee-compare-policy">天开政策<br>最高免租</span>
+    </div>
+    <div class="fee-compare-row">
+      <span class="fee-compare-park">西青园</span>
+      <span class="fee-compare-detail">服务1.5元/天 + 物业0.17元/天</span>
+      <span class="fee-compare-policy">9项减免指标<br>首年免租</span>
+    </div>
+    <div class="fee-compare-row">
+      <span class="fee-compare-park">津南园</span>
+      <span class="fee-compare-detail">服务2元/天（首年0.5）+ 物业10元/月</span>
+      <span class="fee-compare-policy">首年0.5元/天<br>8项减免指标</span>
+    </div>
+    <div class="fee-compare-row">
+      <span class="fee-compare-park">南开园</span>
+      <span class="fee-compare-detail">服务1.8元/天 + 物业19.5元/月</span>
+      <span class="fee-compare-policy" style="color:#999">—</span>
+    </div>
+  </div>
+
+  <!-- 费用计算器 -->
+  <div class="calc-card">
+    <div class="calc-title">&#128200; 费用计算器</div>
+    <div class="calc-sub">输入面积、选择园区，快速估算月费及年费</div>
+    <div class="calc-row">
+      <label>面积</label>
+      <input type="number" class="calc-input" id="calcArea" placeholder="输入 m²" min="1" oninput="calcFee()">
+      <span class="calc-unit">m²</span>
+    </div>
+    <div class="calc-quick" id="calcQuickBtns">
+      <span class="calc-quick-chip" onclick="setCalcArea(50)">50m²</span>
+      <span class="calc-quick-chip" onclick="setCalcArea(100)">100m²</span>
+      <span class="calc-quick-chip" onclick="setCalcArea(200)">200m²</span>
+      <span class="calc-quick-chip" onclick="setCalcArea(500)">500m²</span>
+      <span class="calc-quick-chip" onclick="setCalcArea(1000)">1000m²</span>
+    </div>
+    <div class="calc-row">
+      <label>园区</label>
+      <select class="calc-select" id="calcPark" onchange="calcFee()">
+        <option value="">请选择园区</option>
+        <option value="tanwan">碳湾园</option>
+        <option value="tiankai">天开园</option>
+        <option value="xiqing">西青园</option>
+        <option value="jinnan">津南园</option>
+        <option value="nankai">南开园</option>
+      </select>
+    </div>
+    <div class="calc-result" id="calcResult">
+      <div class="calc-result-row"><span>服务/房租</span><span class="calc-result-val" id="calcServFee">—</span></div>
+      <div class="calc-result-row"><span>物业费</span><span class="calc-result-val" id="calcPropFee">—</span></div>
+      <div class="calc-result-row total"><span id="calcTotalLabel">预估月费（优惠后）</span><span class="calc-result-total" id="calcTotal">—</span></div>
+      <div class="calc-daily" id="calcDaily"></div>
+      <div class="calc-result-row" style="margin-top:4px;padding-top:4px;border-top:1px dashed #e0e0e0"><span><b>预估年费（优惠后）</b></span><span class="calc-result-total" id="calcYearTotal" style="font-size:20px">—</span></div>
+      <div class="calc-standard-ref" id="calcStandard" style="display:none"></div>
+    </div>
+    <div class="calc-policy-tip" id="calcPolicyTip" style="display:none"></div>
+  </div>
+</div>
+
+<!-- ========== 政策页 ========== -->
+<div class="page" id="page-policy">
+  <div style="padding:12px 16px 0">
+    <!-- 政策扶持 -->
+    <div class="section-header"><span class="section-title">政策扶持</span></div>
+    <div class="policy-card" onclick="openParkDetail('tanwan')">
+      <div class="policy-icon" style="background:#fff0e6">&#127891;</div>
+      <div class="policy-body"><h4>硕果计划 · 最高免租</h4><p>碳湾园专享硕果计划，符合条件企业可享最高力度租金减免，预计2026年8月竣工交付</p></div>
+    </div>
+    <div class="policy-card" onclick="openParkDetail('tiankai')">
+      <div class="policy-icon" style="background:#e8f0fe">&#127919;</div>
+      <div class="policy-body"><h4>天开政策 · 最高免租</h4><p>天开园享受天开高教科创园专项政策，入驻企业可享最高免租优惠</p></div>
+    </div>
+    <div class="policy-card" onclick="openParkDetail('xiqing')">
+      <div class="policy-icon" style="background:#e6f7ef">&#128176;</div>
+      <div class="policy-body"><h4>9项减免指标 · 首年免租</h4><p>西青园服务费原价1.5元/天/m²，9项减免指标逐项从原价扣减，符合条件可叠加拿满免租。首年默认全免，次年起考核调整</p></div>
+    </div>
+    <div class="policy-card" onclick="openParkDetail('jinnan')">
+      <div class="policy-icon" style="background:#fff8e6">&#128221;</div>
+      <div class="policy-body"><h4>8项减免指标 · 首年最低0.5元</h4><p>津南园服务费原价2元/天/m²，8项减免指标逐项从原价扣减，最高减免1.5元。首年默认0.5元，期满后考核调整</p></div>
+    </div>
+    <!-- 政策文件 -->
+    <div class="section-header"><span class="section-title">政策文件</span></div>
+    <div class="policy-doc-card" onclick="openPdfViewer('天开45条.pdf','关于进一步支持天开高教科创园建设发展的政策措施（天开45条）')" style="margin-top:12px">
+      <div class="doc-icon">&#128196;</div>
+      <div class="doc-body">
+        <h4>关于进一步支持天开高教科创园建设发展的政策措施（天开45条）</h4>
+        <p>天津市2024年5月15日发布，覆盖天开园核心区及"多点"区域，含财税支持、规划用地、成果转化、金融资本、创新资源、人才服务、企业成长、要素聚集、平台发展等十方面45条具体措施。</p>
+        <div class="doc-keywords">
+          <span class="doc-kw">财税返还</span>
+          <span class="doc-kw">成果转化</span>
+          <span class="doc-kw">人才补贴</span>
+          <span class="doc-kw">企业奖励</span>
+          <span class="doc-kw">投资激励</span>
+        </div>
+        <div class="doc-meta">
+          <span>&#128197; 有效期至2027年12月31日</span>
+          <span>&#128209; 共15页 · PDF</span>
+        </div>
+        <span class="doc-dl-btn">&#128065; 点击预览 / 下载</span><span class="doc-dl-tip">&#128187; 仅电脑端可下载</span>
+      </div>
+    </div>
+    <div class="policy-doc-card" onclick="openPdfViewer('天津市政策速览表.pdf','天津市政策速览表')" style="margin-top:12px">
+      <div class="doc-icon">&#128202;</div>
+      <div class="doc-body">
+        <h4>天津市政策速览表</h4>
+        <p>天津市科技创新、人才引进、企业培育、金融支持等各类惠企政策一览，涵盖政策名称、支持方向、申报条件及补贴标准，帮助企业快速匹配适用的市级扶持政策。</p>
+        <div class="doc-keywords">
+          <span class="doc-kw">科技政策</span>
+          <span class="doc-kw">人才政策</span>
+          <span class="doc-kw">金融支持</span>
+          <span class="doc-kw">企业培育</span>
+          <span class="doc-kw">税收优惠</span>
+        </div>
+        <div class="doc-meta">
+          <span>&#128197; 天津市惠企政策汇总</span>
+          <span>&#128209; PDF</span>
+        </div>
+        <span class="doc-dl-btn">&#128065; 点击预览 / 下载</span><span class="doc-dl-tip">&#128187; 仅电脑端可下载</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 底部导航 -->
+<div class="tab-bar">
+  <div class="tab-item" id="tab-0" onclick="switchTab(0)"><span class="tab-icon">&#127970;&#65039;</span><span class="tab-label">园区详情</span></div>
+  <div class="tab-item" id="tab-1" onclick="switchTab(1)"><span class="tab-icon">&#127970;</span><span class="tab-label">房源</span></div>
+  <div class="tab-item active" id="tab-2" onclick="switchTab(2)"><span class="tab-icon">&#127968;</span><span class="tab-label">首页</span></div>
+  <div class="tab-item" id="tab-3" onclick="switchTab(3)"><span class="tab-icon">&#128220;</span><span class="tab-label">政策</span></div>
+  <div class="tab-item" id="tab-4" onclick="switchTab(4)"><span class="tab-icon">&#128176;</span><span class="tab-label">费用</span></div>
+</div>
+
+<!-- 飘浮咨询按钮 -->
+<button class="float-consult" onclick="openContact()">&#128222; <span>咨询</span></button>
+
+<!-- 预约弹窗 -->
+<div class="toast" id="toast"></div>
+
+<!-- 咨询弹窗 -->
+<div class="contact-modal-overlay" id="contactModal" onclick="closeContact(event)">
+  <div class="contact-modal" onclick="event.stopPropagation()">
+    <button class="close-btn" onclick="closeContact()">&times;</button>
+    <div style="font-size:17px;font-weight:700;color:#222;margin-bottom:16px">扫码咨询</div>
+    <img src="wechat-qrcode.png" alt="招商微信二维码" style="width:160px;height:160px;border-radius:8px;border:1px solid #f0f0f0">
+    <div style="font-size:14px;font-weight:600;color:#222;margin-top:12px">扫码添加招商微信</div>
+    <div style="font-size:12px;color:#666;margin-top:4px">领取专属入驻方案</div>
+    <div style="margin-top:16px;padding-top:14px;border-top:1px dashed #e0e0e0">
+      <div style="font-size:11px;color:#999;margin-bottom:8px">招商热线</div>
+      <div style="font-size:16px;font-weight:700;color:#1a6fd4;margin-bottom:6px">133-2348-1895（孙）</div>
+      <div style="font-size:16px;font-weight:700;color:#1a6fd4">133-2347-1895（张）</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== 园区数据 =====
+const parks = [
+  {
+    id: 'tanwan', name: '天工碳湾科创园', year: '预计2026年8月竣工', area: '35,000', areaDisplay: '3.5万m²',
+    loc: '天津大学北洋校区东北门斜对面（约200m）',
+    desc: '天工碳湾科创园是天大科技园最新布局的重点园区，共有7栋楼：1号、2号、4号楼为研发实验楼，3A、3B、3C、3D号楼为办公写字楼，每栋5层，每层约1,000㎡，整层出租无隔断，为大面积需求企业提供开阔空间。聚焦碳产业链，围绕碳捕集、碳利用、碳封存、碳交易等方向打造产业生态。预计2026年8月竣工交付。',
+    highlights: ['7栋×5层=35层', '整层约1000㎡', '无隔断大开间', '碳产业链聚焦', '8月交付'],
+    gradient: '135deg, #e65100, #ff8f00',
+    detailClass: 'detail-tanwan',
+    feeInfo: {
+      hasPolicy: true,
+      original: {
+        serviceDay: '1.0(房租)+0.5~0.6(物业)', serviceDesc: '服务费+物业费：1.5~1.6元/天/m²（1元房租+0.5~0.6物业含冷暖）',
+        serviceCollector: '海投收取',
+        totalMonth: 47, totalDesc: '约46~49元/月/m²',
+        formula: '1.0元房租 + 0.5~0.6元物业（含冷暖能源费，不含电费）'
+      },
+      policy: { desc: '硕果计划：最高免租', detail: '碳湾园专属硕果计划，符合条件的优质企业可享最高力度租金减免优惠。具体减免额度以入园评审和签约确认为准，欢迎提前咨询。' },
+      calc: { servDay: 1.0, propDay: 0.55, propType: 'day', policy: { rate: 0.2, applyTo: 'rent', label: 'A类企业（硕果计划）', note: 'A类前三年仅缴房租20%（0.2元/天/m²）+ 物业0.55元/天/m²；B类房租逐年20%→50%→70%。以硕果计划评审为准' } }
+    },
+    facilities: { parking: '待定', meeting: '待定', electricity: '电费另付', heating: '中央空调（物业费含冷暖能源费，不含电费）', other: '1号/2号/4号楼(研发实验楼) + 3A/3B/3C/3D号楼(办公楼)，每栋5层，整层约1000㎡无隔断' },
+    requirements: '聚焦碳基功能材料、碳基半导体、合成生物与生物制造、碳循环与回收四大赛道。高校/科研院所教师、学生、校友创业团队（可未注册）；已注册企业（注册地非津南区，承诺入选后30天内迁入）。',
+    floorPlan: 'tanwan_floorplan.png',
+    floorPlanNote: '此图纸为建议企业隔断方案，实际上是大平层。图中标注为室内实测面积；合同签约按建筑面积计算，实际面积会略高一些。'
+  },
+  {
+    id: 'tiankai', name: '天大科技园（天开）', year: '2023年', area: '21,974', areaDisplay: '21,974m²',
+    loc: '天开高教科创园核心区先导区5号楼',
+    desc: '天津大学科技园围绕天开园战略规划，加速天津大学科技成果产业化，孵化更多高水平科技项目。致力于通过提供全方位、多层次的服务，满足不同服务对象的需求，推动区域经济发展和科技创新。共23层，2层为共享会议室，3-23层为办公楼层（21层），每层9个房间、共计约1,046.4㎡。',
+    highlights: ['天开核心区', '23层地标', 'A类前三年20%', '60分以上返租', '共享会议室/报告厅'],
+    gradient: '135deg, #1565c0, #42a5f5',
+    detailClass: 'detail-tiankai',
+    feeInfo: {
+      hasPolicy: true,
+      original: {
+        serviceDay: 2.5, serviceDesc: '服务费（租金）：2.5元/天/m²',
+        serviceCollector: '天开集团收取',
+        propertyDay: 0.8, propertyDesc: '物业费：0.8元/天/m²',
+        propertyCollector: '天开集团收取',
+        totalMonth: 100, totalDesc: '约100元/月/m²（3.3×365÷12≈100.4）',
+        extraDesc: '能源采暖费：暂未收取 | 电费：预缴制，按实际发生扣款 | 水费：无 | 押金：10,000元',
+        formula: '(2.5+0.8)×365×面积÷12×缴费比例'
+      },
+      policy: {
+        desc: 'A/B/C三类折扣 + 年度考核返租',
+        detail: 'A类企业（天大在职教师为董事长/法人/总经理，转化天大成果）：三年均按20%收取（≈20元/月/m²）；\nB类企业（天大毕业5年以上创办/与天大科研团队合作转化）：逐年20%→50%→70%；\nC类企业（除A/B类外）：按100%收取；\n年度考核：60分以上/80分以上对应不同返还标准'
+      },
+      calc: { servDay: 2.5, propDay: 0.8, propType: 'day', policy: { rate: 0.2, applyTo: 'all', label: 'A类企业（最优）', note: 'A类前三年仅缴20%（含房租+物业）；B类逐年20%→50%→70%。年度考核60分+可返租。以天开评审为准' } }
+    },
+    facilities: { parking: '临时￥6/小时；包月入驻企业550元/月、非入驻600元/月', meeting: '2层共享会议室（免费），可容纳2-36人', electricity: '预缴制，按实际发生扣款', heating: '暂未收取能源采暖费（空调制热制冷）', other: '7号楼大报告厅最高500人；食堂(B1)；停车包月入驻企业550/月' },
+    requirements: 'A类：天大在职教师担任董事长/法人/总经理，转化天大成果。B类：天大毕业5年以上创办的公司 或 与天大科研团队/在职教师有技术合作并转化落地。C类：其他科技型企业。',
+    floorPlan: 'tiankai_floorplan.jpg'
+  },
+  {
+    id: 'xiqing', name: '天大科技园（西青）', year: '2025年', area: '3,150', areaDisplay: '3,150m²',
+    loc: '天开高教科创园（西青园）',
+    desc: '天津西青区政府联合北洋海棠基金依托西青区及天开西青园新能源新材料和智能网联、生物医药和生命健康等特色产业和区位优势，建设高水平天大科技园（西青）。发挥北洋海棠基金优势，以基金+科技园模式带动创新创业生态体系，发现、赋能、投资具有产业化价值、商业化价值的科技成果，助力科研成果产业化落地。共8层：2-3层食堂餐厅，4-8层办公，每层3个房间（01号180.52㎡、02号224.74㎡、03号224.74㎡），每层约630㎡。',
+    highlights: ['天开西翼', '北洋海棠基金', '9项减免指标首年免租', '新能源新材料', '智能网联/生物医药'],
+    gradient: '135deg, #0a3d8f, #1a6fd4',
+    detailClass: 'detail-xiqing',
+    feeInfo: {
+      hasPolicy: true,
+      original: {
+        serviceDay: 1.5, serviceDesc: '服务费（租金）：1.5元/天/m²（≈46元/月/m²）',
+        serviceCollector: '天大科技园收取',
+        propertyDay: 0.17, propertyDesc: '物业费：0.17元/天/m²（≈5元/月/m²）',
+        propertyCollector: '天大科技园收取',
+        extraDesc: '房号费：1500元/年（仅虚拟注册，不实际使用载体）| 工位费：300元/月/个（共享工位，提供办公环境及配套）| 电费：商业用电平谷计费，空调电费同层按签约面积摊付（暂未开始收取）| 水费：公区用水同层按签约面积摊付（暂未开始收取）| 采暖：无（冬夏均用空调）| 停车：暂无收费',
+        totalMonth: 51, totalDesc: '约51元/月/m²'
+      },
+      policy: {
+        desc: '9项减免指标 · 最高免租',
+        detail: '服务费原价1.5元/天/m²（≈46元/月/m²）；\n按9项减免指标逐项评定，符合条件可叠加减免，最低可达免租。\n首年默认满足所有减免指标（即0元/天/m²）；次年起按年度考核调整。\n工位300元/月/个。',
+        indicators: [
+          { seq: '1', name: '配合度', detail: '无逾期缴费记录 / 每季度至少参加1次园区活动 / 及时提供企业最新材料', amt: '0.1' },
+          { seq: '2', name: '行业', detail: '智能制造（AI/集成电路/智能设备/工业物联网/智能硬件）/ 新材料、新能源（前沿材料/电子信息/节能环保/新能源材料）', amt: '0.1' },
+          { seq: '3', name: '与天大相关', detail: '在职教师或在校生(含宣怀学院)：0.3 / 生态伙伴：0.2 / 天大校友：0.1（不可叠加，取高值）', amt: '0.1~0.3' },
+          { seq: '4', name: '知识产权', detail: '当年新增发明专利/实用新型/软著等（已授权提供编号及PDF；受理提供申请中PDF证明）', amt: '0.1' },
+          { seq: '5', name: '科技成果转化', detail: '转让/许可/作价投资等方式转化成果（需提供技术合同/开发合同/服务合同等证明）', amt: '0.1' },
+          { seq: '6', name: '资质', detail: '国科小/能鹰：0.1 / 高企/瞪羚/专精特新/科技领军：0.2（不可叠加，取高值）', amt: '0.1~0.2' },
+          { seq: '7', name: '融资/授信', detail: '已获融资：0.3 / 意向融资：0.2 / 银行授信：0.1（不可叠加，取高值）。获种子基金企业可享首年150㎡免租', amt: '0.1~0.3' },
+          { seq: '8', name: '办公人员', detail: '3人以上/百㎡（含3人），需缴纳社保证明', amt: '0.1' },
+          { seq: '9', name: '营收', detail: '营收0.8~1.5万/㎡：0.1 / 营收1.5万/㎡以上：0.2（不可叠加，取高值）', amt: '0.1~0.2' }
+        ]
+      },
+      calc: { servDay: 1.5, propDay: 0.17, propType: 'day', policy: { servDay: 0.6, label: '首年平均约6毛', note: '首年服务费平均约0.6元/天/m²，次年起按9项减免指标年度考核0~1.5元/天/m²。物业费0.17元/天/m²不变。' } }
+    },
+    facilities: { parking: '暂无收费', meeting: '3号楼4层大会议室（20-35人）免费 | 1号楼2层大会议室（18-25人）免费 | 1号楼2层小会议室（8-15人）免费 | 3号楼4层洽谈区/接待区免费', electricity: '商业用电平谷计费，空调电费同层摊付', heating: '空调制热制冷（无暖气费）', other: '食堂(2-3层) | 人才公寓:四人间/家庭房/二人间/一人间 ¥2400/月（含网络+能源+物业费），水电另付(水7.9元/吨，电0.9元/度)，步行100m' },
+    requirements: '天大老师、校友优先。符合园区主导产业方向：新能源新材料、人工智能、生物医药等科技型企业。',
+    floorPlan: 'xiqing_floorplan.jpg'
+  },
+  {
+    id: 'jinnan', name: '天大科技园（津南）', year: '2022年', area: '16,357', areaDisplay: '16,357m²',
+    loc: '天津市津南区海棠科创园（4-18层）',
+    desc: '坐落于津南区海棠科创园，共22层。1-3层为公共配套（食堂、健身房、会议室、新媒体厅、报告厅等），4-18层为办公楼层。每层布局相同，7个房间共约1,090㎡。户型种类：111.6㎡和200㎡两种，全部精装交付，户型方正。周边环绕天大北洋园校区，人才资源丰富，紧邻地铁6号线。',
+    highlights: ['22层地标建筑', '4-18层办公', '111.6/200㎡精装', '首年0.5元/天/m²', '食堂/健身房/报告厅'],
+    gradient: '135deg, #0d4fa0, #2389f5',
+    detailClass: 'detail-jinnan',
+    feeInfo: {
+      hasPolicy: true,
+      original: {
+        serviceDay: 2, serviceDesc: '服务费2元/天/m²（≈61元/月/m²）',
+        serviceCollector: '天大科技园收取',
+        propertyMonth: 10, propertyDesc: '物业费10元/月/m²',
+        propertyCollector: '海投收取（海致园）',
+        extraDesc: '暖气费：40元/m²/年',
+        totalMonth: 71, totalDesc: '约71元/月/m²',
+        formula: '2×365÷12≈61 + 物业10 ≈ 71元/月/m²'
+      },
+      policy: {
+        desc: '首年0.5元/天/m² + 8项减免指标',
+        detail: '首年默认最低价0.5元/天/m²（≈15元/月/m² + 物业10元 ≈ 25元/月/m²）；\n期满后按8项减免指标考核评定下一年度服务费，收费区间2~0.5元/天/m²',
+        indicators: [
+          { seq: '1', name: '企业类型', detail: '数字科技/智能制造/新材料新能源', amt: '0.1' },
+          { seq: '2', name: '与天大相关', detail: '在校教师0.3 / 学生创业0.2 / 校企合作0.2', amt: '0.2~0.3' },
+          { seq: '3', name: '知识产权', detail: '发明专利0.2 / 实用新型或软著可叠加最高0.5', amt: '最高0.5' },
+          { seq: '4', name: '企业资质', detail: '创小/科小0.1个；高企/专精特新等0.2个，可叠加', amt: '0.1~0.4+' },
+          { seq: '5', name: '业务拓展', detail: '获融资/授信/技术合同认定，0.2/个可叠加', amt: '0.2/个' },
+          { seq: '6', name: '营收税收', detail: '营收0.7万/m²以上 或 税收0.03万/m²以上（满足一项即可）', amt: '0.6' },
+          { seq: '7', name: '办公人数', detail: '3人/百平米以上', amt: '0.2' },
+          { seq: '8', name: '配合度', detail: '无逾期缴费/无物业投诉', amt: '0.2' }
+        ]
+      },
+      calc: { servDay: 2, propMonth: 10, propType: 'month', policy: { servDay: 0.5, label: '首年优惠', note: '首年服务费仅0.5元/天/m²（≈15元/月/m²），次年起按8项指标考核2~0.5元/天/m²。物业费10元/月/m²不变。' } }
+    },
+    facilities: { parking: '免费停车', meeting: '3层7间会议室（3间免费/容纳2-25人）、新媒体厅125元/时、报告厅可容纳500人（¥5000/半天、¥9000/天）', electricity: '0.85元/度', heating: '40元/m²/年', other: '食堂（2层）、健身房（2层）、贵宾厅（3层/配套报告厅使用）' },
+    requirements: '符合园区主导产业方向：新能源新材料、人工智能、生物医药等科技型企业。',
+    floorPlan: 'jinnan_floorplan.jpg'
+  },
+  {
+    id: 'nankai', name: '天大科技园（南开）', year: '2021年', area: '10,000', areaDisplay: '10,000m²',
+    loc: '天津市南开区启航大厦，天津大学北门斜对面（约500m）',
+    desc: '坐落于南开区启航大厦，天津大学北门斜对面约500米。提供20-200m²灵动办公空间，是初创企业的首选之地。周边商业配套成熟，交通便利，产业生态完备。配备会议室、路演厅、共享办公区等公共服务设施。',
+    highlights: ['天大北门500m', '20-200m²灵动空间', '初创首选', '产业生态成熟', '共享配套完善'],
+    gradient: '135deg, #1a6fd4, #56b4fc',
+    detailClass: 'detail-nankai',
+    feeInfo: {
+      hasPolicy: false,
+      original: {
+        serviceDay: 1.8, serviceDesc: '服务费1.8元/天/m²（≈55元/月/m²）',
+        propertyMonth: 19.5, propertyDesc: '物业费19.5元/月/m²',
+        totalMonth: 74, totalDesc: '约74元/月/m²'
+      },
+      policy: { desc: '—' },
+      calc: { servDay: 1.8, propMonth: 19.5, propType: 'month' }
+    },
+    facilities: { parking: '待确认', meeting: '会议室、路演厅', electricity: '待确认', heating: '待确认', other: '共享办公区' },
+    floorPlan: 'nankai_floorplan.jpg'
+  }
+];
+
+// ===== 园区外观图 =====
+const campusImages = {
+  jinnan: [
+    { src: 'images/jinnan/exterior1.jpg', label: '园区外观', cat: '外观' },
+    { src: 'images/jinnan/lobby_1.jpg', label: '一楼大厅①', cat: '公共配套' },
+    { src: 'images/jinnan/lobby_2.jpg', label: '一楼大厅②', cat: '公共配套' },
+    { src: 'images/jinnan/exhibition_1.jpg', label: '一楼展厅①（可预约讲解）', cat: '公共配套' },
+    { src: 'images/jinnan/exhibition_2.jpg', label: '一楼展厅②', cat: '公共配套' },
+    { src: 'images/jinnan/exhibition_3.jpg', label: '一楼展厅③', cat: '公共配套' },
+    { src: 'images/jinnan/exhibition_4.jpg', label: '一楼展厅④', cat: '公共配套' },
+    { src: 'images/jinnan/exhibition_5.jpg', label: '一楼展厅⑤', cat: '公共配套' },
+    { src: 'images/jinnan/access_control.jpg', label: '门禁系统', cat: '公共配套' },
+    { src: 'images/jinnan/elevator.png', label: '电梯间（3客梯+1货梯）', cat: '公共配套' },
+    { src: 'images/jinnan/reception.jpg', label: '公共接待区（每层均有）', cat: '公共配套' },
+    { src: 'images/jinnan/lecture_hall.jpg', label: '多功能报告厅', cat: '公共配套' },
+    { src: 'images/jinnan/cafeteria1.jpg', label: '食堂（2层）①', cat: '公共配套' },
+    { src: 'images/jinnan/cafeteria2.jpg', label: '食堂（2层）②', cat: '公共配套' },
+    { src: 'images/jinnan/cafeteria3.jpg', label: '食堂（2层）③', cat: '公共配套' },
+    { src: 'images/jinnan/gym1.jpg', label: '健身房（2层）①', cat: '公共配套' },
+    { src: 'images/jinnan/gym2.jpg', label: '健身房（2层）②', cat: '公共配套' },
+    { src: 'images/jinnan/meeting1.jpg', label: '会议室（3层/7间/免费）', cat: '公共配套' },
+    { src: 'images/jinnan/media1.jpg', label: '新媒体厅 125元/时', cat: '公共配套' },
+    { src: 'images/jinnan/auditorium1.jpg', label: '报告厅（3层/500人）', cat: '公共配套' },
+    { src: 'images/jinnan/vip1.jpg', label: '贵宾厅', cat: '公共配套' },
+    { src: 'images/jinnan/office_area.jpg', label: '办公区（配备桌椅柜子）', cat: '办公空间' },
+    { src: 'images/jinnan/room111_1.jpg', label: '111.6㎡ 户型A', cat: '办公空间' },
+    { src: 'images/jinnan/room111_2.jpg', label: '111.6㎡ 户型B', cat: '办公空间' },
+    { src: 'images/jinnan/room200_1.jpg', label: '200㎡ 户型A', cat: '办公空间' },
+    { src: 'images/jinnan/room200_2.jpg', label: '200㎡ 户型B', cat: '办公空间' },
+    { src: 'images/jinnan/room200_3.jpg', label: '200㎡ 户型C（实拍）', cat: '办公空间' },
+    { src: 'images/jinnan/room140.jpg', label: '140㎡ 户型', cat: '办公空间' },
+    { src: 'images/jinnan/jinnan_1816_01.jpg', label: '18层 16号房 实景①', cat: '办公空间' },
+    { src: 'images/jinnan/jinnan_1816_02.jpg', label: '18层 16号房 实景②', cat: '办公空间' },
+    { src: 'images/jinnan/jinnan_1816_03.jpg', label: '18层 16号房 实景③', cat: '办公空间' },
+    { src: 'images/jinnan/jinnan_1816_04.jpg', label: '18层 16号房 实景④', cat: '办公空间' },
+    { src: 'images/jinnan/jinnan_1814_01.jpg', label: '18层 14号房 实景①', cat: '办公空间' },
+    { src: 'images/jinnan/jinnan_1814_02.jpg', label: '18层 14号房 实景②', cat: '办公空间' },
+    { src: 'images/jinnan/jinnan_1814_03.jpg', label: '18层 14号房 实景③', cat: '办公空间' },
+    { src: 'images/jinnan/jinnan_1814_04.jpg', label: '18层 14号房 实景④', cat: '办公空间' },
+    { src: 'images/jinnan/jinnan_1812_01.jpg', label: '18层 12号房 实景①', cat: '办公空间' },
+    { src: 'images/jinnan/jinnan_1812_02.jpg', label: '18层 12号房 实景②', cat: '办公空间' },
+    { src: 'images/jinnan/jinnan_1812_03.jpg', label: '18层 12号房 实景③', cat: '办公空间' },
+    { src: 'images/jinnan/jinnan_1812_04.jpg', label: '18层 12号房 实景④', cat: '办公空间' },
+    { src: 'images/jinnan/jinnan_1613_01.jpg', label: '16层 13号房 实景①', cat: '办公空间' },
+    { src: 'images/jinnan/jinnan_1613_02.jpg', label: '16层 13号房 实景②', cat: '办公空间' },
+    { src: 'images/jinnan/jinnan_1514_01.jpg', label: '15层 14号房 实景①', cat: '办公空间' },
+    { src: 'images/jinnan/jinnan_1514_02.jpg', label: '15层 14号房 实景②', cat: '办公空间' },
+    { src: 'images/jinnan/jinnan_1514_03.jpg', label: '15层 14号房 实景③', cat: '办公空间' },
+    { src: 'images/jinnan/jinnan_1412_01.jpg', label: '14层 12号房 实景①', cat: '办公空间' },
+    { src: 'images/jinnan/jinnan_1412_02.jpg', label: '14层 12号房 实景②', cat: '办公空间' },
+    { src: 'images/jinnan/jinnan_1412_03.jpg', label: '14层 12号房 实景③', cat: '办公空间' },
+    { src: 'images/jinnan/jinnan_1114_01.jpg', label: '11层 14号房 实景①', cat: '办公空间' },
+    { src: 'images/jinnan/jinnan_1114_02.jpg', label: '11层 14号房 实景②', cat: '办公空间' },
+    { src: 'images/jinnan/jinnan_1114_03.jpg', label: '11层 14号房 实景③', cat: '办公空间' },
+    { src: 'images/jinnan/jinnan_1114_04.jpg', label: '11层 14号房 实景④', cat: '办公空间' },
+    { src: 'images/jinnan/jinnan_815_01.jpg', label: '8层 15号房 实景①', cat: '办公空间' },
+    { src: 'images/jinnan/jinnan_815_02.jpg', label: '8层 15号房 实景②', cat: '办公空间' },
+    { src: 'images/jinnan/jinnan_712_01.jpg', label: '7层 12号房 实景①', cat: '办公空间' },
+    { src: 'images/jinnan/jinnan_712_02.jpg', label: '7层 12号房 实景②', cat: '办公空间' },
+    { src: 'images/jinnan/jinnan_712_03.jpg', label: '7层 12号房 实景③', cat: '办公空间' },
+    { src: 'images/jinnan/jinnan_712_04.jpg', label: '7层 12号房 实景④', cat: '办公空间' },
+    { src: 'images/jinnan/jinnan_612_01.jpg', label: '6层 12号房 实景①', cat: '办公空间' },
+  ],
+  nankai: [
+    { src: 'images/nankai/exterior.jpg', label: '南开园 · 园区外观', cat: '外观' },
+    { src: 'images/nankai/multi_hall.jpg', label: '多功能厅', cat: '公共配套' },
+    { src: 'images/nankai/meeting_room_1.jpg', label: '会议室①', cat: '公共配套' },
+    { src: 'images/nankai/meeting_room_2.jpg', label: '会议室②', cat: '公共配套' },
+    { src: 'images/nankai/booth_1.jpg', label: '卡座区①', cat: '公共配套' },
+    { src: 'images/nankai/booth_2.jpg', label: '卡座区②', cat: '公共配套' },
+    { src: 'images/nankai/incubation_corridor.jpg', label: '26层孵化区', cat: '办公空间' },
+    { src: 'images/nankai/floorplan_std.jpg', label: '标准层平面图', cat: '办公空间' },
+    { src: 'images/nankai/floorplan_26f.png', label: '26层平面图', cat: '办公空间' },
+  ],
+  tiankai: [
+    { src: 'images/tiankai/tiankai_exterior_real.jpg', label: '天开园 · 园区外观', cat: '外观' },
+    { src: 'images/tiankai/tiankai_501.jpg', label: '01室实景', cat: '办公空间' },
+    { src: 'images/tiankai/tiankai_502.jpg', label: '02室实景', cat: '办公空间' },
+    { src: 'images/tiankai/tiankai_503.jpg', label: '03室实景', cat: '办公空间' },
+    { src: 'images/tiankai/tiankai_904.jpg', label: '04室实景', cat: '办公空间' },
+    { src: 'images/tiankai/tiankai_705.jpg', label: '05室实景', cat: '办公空间' },
+    { src: 'images/tiankai/tiankai_705-1.jpg', label: '05-1室实景', cat: '办公空间' },
+    { src: 'images/tiankai/tiankai_1006.jpg', label: '06室实景', cat: '办公空间' },
+    { src: 'images/tiankai/tiankai_1007.jpg', label: '07室实景', cat: '办公空间' },
+    { src: 'images/tiankai/tiankai_1008.jpg', label: '08室实景', cat: '办公空间' },
+    { src: 'images/tiankai/auditorium1.jpg', label: '7号楼报告厅①', cat: '公共配套' },
+    { src: 'images/tiankai/auditorium2.jpg', label: '7号楼报告厅②', cat: '公共配套' },
+    { src: 'images/tiankai/meeting.jpg', label: '二层会议室', cat: '公共配套' },
+    { src: 'images/tiankai/parking.jpg', label: '停车场平面图', cat: '公共配套' },
+    { src: 'images/tiankai/assess_a.jpg', label: 'A类企业考核标准', cat: '政策文件' },
+    { src: 'images/tiankai/assess_b.jpg', label: 'B类企业考核标准', cat: '政策文件' },
+  ],
+  tanwan: [
+    { src: 'images/tanwan/exterior.jpg', label: '碳湾园 · 园区外观', cat: '办公空间' },
+    { src: 'images/tanwan/exterior_building1.jpg', label: '碳湾园 · 1号楼外观', cat: '办公空间' },
+    { src: 'images/tanwan/interior.jpg', label: '内部办公空间', cat: '办公空间' },
+  ],
+  xiqing: [
+    { src: 'images/xiqing/exterior.jpg', label: '西青园 · 园区外观', cat: '外观' },
+    { src: 'images/xiqing/room01.jpg', label: '01号房 180.52㎡', cat: '办公空间' },
+    { src: 'images/xiqing/room02.jpg', label: '02号房 224.74㎡', cat: '办公空间' },
+    { src: 'images/xiqing/room03.jpg', label: '03号房 224.74㎡', cat: '办公空间' },
+    { src: 'images/xiqing/coworking.jpg', label: '共享工位（4层）', cat: '办公空间' },
+    { src: 'images/xiqing/indicators.jpg', label: '减免指标细则', cat: '政策文件' },
+    { src: 'images/xiqing/meeting_4f.jpg', label: '3号楼4层大会议室（20-35人）', cat: '公共配套' },
+    { src: 'images/xiqing/lounge_4f.jpg', label: '3号楼4层 洽谈区', cat: '公共配套' },
+    { src: 'images/xiqing/reception_4f.jpg', label: '3号楼4层 接待区', cat: '公共配套' },
+    { src: 'images/xiqing/meeting_1f_big.jpg', label: '1号楼2层大会议室（18-25人）', cat: '公共配套' },
+    { src: 'images/xiqing/meeting_1f_small.jpg', label: '1号楼2层小会议室（8-15人）', cat: '公共配套' },
+  ],
+};
+
+// ===== 房源数据 =====
+const houses = [
+  // === 碳湾园（7栋楼，每栋5层，每层约1000㎡，按层选房，整层无隔断） ===
+  // 1号楼（研发实验楼）
+  { id:1, parkId:'tanwan', name:'1号研发实验楼 1层', building:'碳湾园', area:1000, floor:'1F', room:'1号楼 整层', type:'整层', tag:'研发楼', condition:'精装', status:'即将交付', note:'无隔断整层约1000㎡' },
+  { id:2, parkId:'tanwan', name:'1号研发实验楼 2层', building:'碳湾园', area:1000, floor:'2F', room:'1号楼 整层', type:'整层', tag:'研发楼', condition:'精装', status:'即将交付', note:'无隔断整层约1000㎡' },
+  { id:3, parkId:'tanwan', name:'1号研发实验楼 3层', building:'碳湾园', area:1000, floor:'3F', room:'1号楼 整层', type:'整层', tag:'研发楼', condition:'精装', status:'即将交付', note:'无隔断整层约1000㎡' },
+  { id:4, parkId:'tanwan', name:'1号研发实验楼 4层', building:'碳湾园', area:1000, floor:'4F', room:'1号楼 整层', type:'整层', tag:'研发楼', condition:'精装', status:'即将交付', note:'无隔断整层约1000㎡' },
+  { id:5, parkId:'tanwan', name:'1号研发实验楼 5层', building:'碳湾园', area:1000, floor:'5F', room:'1号楼 整层', type:'整层', tag:'研发楼', condition:'精装', status:'即将交付', note:'无隔断整层约1000㎡' },
+  // 2号楼（研发实验楼）
+  { id:6, parkId:'tanwan', name:'2号研发实验楼 1层', building:'碳湾园', area:1000, floor:'1F', room:'2号楼 整层', type:'整层', tag:'研发楼', condition:'精装', status:'即将交付', note:'无隔断整层约1000㎡' },
+  { id:7, parkId:'tanwan', name:'2号研发实验楼 2层', building:'碳湾园', area:1000, floor:'2F', room:'2号楼 整层', type:'整层', tag:'研发楼', condition:'精装', status:'即将交付', note:'无隔断整层约1000㎡' },
+  { id:8, parkId:'tanwan', name:'2号研发实验楼 3层', building:'碳湾园', area:1000, floor:'3F', room:'2号楼 整层', type:'整层', tag:'研发楼', condition:'精装', status:'即将交付', note:'无隔断整层约1000㎡' },
+  { id:9, parkId:'tanwan', name:'2号研发实验楼 4层', building:'碳湾园', area:1000, floor:'4F', room:'2号楼 整层', type:'整层', tag:'研发楼', condition:'精装', status:'即将交付', note:'无隔断整层约1000㎡' },
+  { id:10, parkId:'tanwan', name:'2号研发实验楼 5层', building:'碳湾园', area:1000, floor:'5F', room:'2号楼 整层', type:'整层', tag:'研发楼', condition:'精装', status:'即将交付', note:'无隔断整层约1000㎡' },
+  // 4号楼（研发实验楼）
+  { id:11, parkId:'tanwan', name:'4号研发实验楼 1层', building:'碳湾园', area:1000, floor:'1F', room:'4号楼 整层', type:'整层', tag:'研发楼', condition:'精装', status:'即将交付', note:'无隔断整层约1000㎡' },
+  { id:12, parkId:'tanwan', name:'4号研发实验楼 2层', building:'碳湾园', area:1000, floor:'2F', room:'4号楼 整层', type:'整层', tag:'研发楼', condition:'精装', status:'即将交付', note:'无隔断整层约1000㎡' },
+  { id:13, parkId:'tanwan', name:'4号研发实验楼 3层', building:'碳湾园', area:1000, floor:'3F', room:'4号楼 整层', type:'整层', tag:'研发楼', condition:'精装', status:'即将交付', note:'无隔断整层约1000㎡' },
+  { id:14, parkId:'tanwan', name:'4号研发实验楼 4层', building:'碳湾园', area:1000, floor:'4F', room:'4号楼 整层', type:'整层', tag:'研发楼', condition:'精装', status:'即将交付', note:'无隔断整层约1000㎡' },
+  { id:15, parkId:'tanwan', name:'4号研发实验楼 5层', building:'碳湾园', area:1000, floor:'5F', room:'4号楼 整层', type:'整层', tag:'研发楼', condition:'精装', status:'即将交付', note:'无隔断整层约1000㎡' },
+  // 3A号楼（办公楼）
+  { id:16, parkId:'tanwan', name:'3A号办公楼 1层', building:'碳湾园', area:1000, floor:'1F', room:'3A号楼 整层', type:'整层', tag:'写字楼', condition:'精装', status:'即将交付', note:'无隔断整层约1000㎡' },
+  { id:17, parkId:'tanwan', name:'3A号办公楼 2层', building:'碳湾园', area:1000, floor:'2F', room:'3A号楼 整层', type:'整层', tag:'写字楼', condition:'精装', status:'即将交付', note:'无隔断整层约1000㎡' },
+  { id:18, parkId:'tanwan', name:'3A号办公楼 3层', building:'碳湾园', area:1000, floor:'3F', room:'3A号楼 整层', type:'整层', tag:'写字楼', condition:'精装', status:'即将交付', note:'无隔断整层约1000㎡' },
+  { id:19, parkId:'tanwan', name:'3A号办公楼 4层', building:'碳湾园', area:1000, floor:'4F', room:'3A号楼 整层', type:'整层', tag:'写字楼', condition:'精装', status:'即将交付', note:'无隔断整层约1000㎡' },
+  { id:20, parkId:'tanwan', name:'3A号办公楼 5层', building:'碳湾园', area:1000, floor:'5F', room:'3A号楼 整层', type:'整层', tag:'写字楼', condition:'精装', status:'即将交付', note:'无隔断整层约1000㎡' },
+  // 3B号楼（办公楼）
+  { id:21, parkId:'tanwan', name:'3B号办公楼 1层', building:'碳湾园', area:1000, floor:'1F', room:'3B号楼 整层', type:'整层', tag:'写字楼', condition:'精装', status:'即将交付', note:'无隔断整层约1000㎡' },
+  { id:22, parkId:'tanwan', name:'3B号办公楼 2层', building:'碳湾园', area:1000, floor:'2F', room:'3B号楼 整层', type:'整层', tag:'写字楼', condition:'精装', status:'即将交付', note:'无隔断整层约1000㎡' },
+  { id:23, parkId:'tanwan', name:'3B号办公楼 3层', building:'碳湾园', area:1000, floor:'3F', room:'3B号楼 整层', type:'整层', tag:'写字楼', condition:'精装', status:'即将交付', note:'无隔断整层约1000㎡' },
+  { id:24, parkId:'tanwan', name:'3B号办公楼 4层', building:'碳湾园', area:1000, floor:'4F', room:'3B号楼 整层', type:'整层', tag:'写字楼', condition:'精装', status:'即将交付', note:'无隔断整层约1000㎡' },
+  { id:25, parkId:'tanwan', name:'3B号办公楼 5层', building:'碳湾园', area:1000, floor:'5F', room:'3B号楼 整层', type:'整层', tag:'写字楼', condition:'精装', status:'即将交付', note:'无隔断整层约1000㎡' },
+  // 3C号楼（办公楼）
+  { id:26, parkId:'tanwan', name:'3C号办公楼 1层', building:'碳湾园', area:1000, floor:'1F', room:'3C号楼 整层', type:'整层', tag:'写字楼', condition:'精装', status:'即将交付', note:'无隔断整层约1000㎡' },
+  { id:27, parkId:'tanwan', name:'3C号办公楼 2层', building:'碳湾园', area:1000, floor:'2F', room:'3C号楼 整层', type:'整层', tag:'写字楼', condition:'精装', status:'即将交付', note:'无隔断整层约1000㎡' },
+  { id:28, parkId:'tanwan', name:'3C号办公楼 3层', building:'碳湾园', area:1000, floor:'3F', room:'3C号楼 整层', type:'整层', tag:'写字楼', condition:'精装', status:'即将交付', note:'无隔断整层约1000㎡' },
+  { id:29, parkId:'tanwan', name:'3C号办公楼 4层', building:'碳湾园', area:1000, floor:'4F', room:'3C号楼 整层', type:'整层', tag:'写字楼', condition:'精装', status:'即将交付', note:'无隔断整层约1000㎡' },
+  { id:30, parkId:'tanwan', name:'3C号办公楼 5层', building:'碳湾园', area:1000, floor:'5F', room:'3C号楼 整层', type:'整层', tag:'写字楼', condition:'精装', status:'即将交付', note:'无隔断整层约1000㎡' },
+  // 3D号楼（办公楼）
+  { id:31, parkId:'tanwan', name:'3D号办公楼 1层', building:'碳湾园', area:1000, floor:'1F', room:'3D号楼 整层', type:'整层', tag:'写字楼', condition:'精装', status:'即将交付', note:'无隔断整层约1000㎡' },
+  { id:32, parkId:'tanwan', name:'3D号办公楼 2层', building:'碳湾园', area:1000, floor:'2F', room:'3D号楼 整层', type:'整层', tag:'写字楼', condition:'精装', status:'即将交付', note:'无隔断整层约1000㎡' },
+  { id:33, parkId:'tanwan', name:'3D号办公楼 3层', building:'碳湾园', area:1000, floor:'3F', room:'3D号楼 整层', type:'整层', tag:'写字楼', condition:'精装', status:'即将交付', note:'无隔断整层约1000㎡' },
+  { id:34, parkId:'tanwan', name:'3D号办公楼 4层', building:'碳湾园', area:1000, floor:'4F', room:'3D号楼 整层', type:'整层', tag:'写字楼', condition:'精装', status:'即将交付', note:'无隔断整层约1000㎡' },
+  { id:35, parkId:'tanwan', name:'3D号办公楼 5层', building:'碳湾园', area:1000, floor:'5F', room:'3D号楼 整层', type:'整层', tag:'写字楼', condition:'精装', status:'即将交付', note:'无隔断整层约1000㎡' },
+
+  // === 天开园（18个可租房源） ===
+  { id:36, parkId:'tiankai', name:'天开5号楼 4F 01室', building:'天开先导区5号楼', area:114.21, floor:'4F', room:'01室', type:'单间', tag:'写字楼', condition:'精装', status:'可租', imgs:['images/tiankai/tiankai_401_01.png','images/tiankai/tiankai_401_02.png','images/tiankai/tiankai_401_03.png'] },
+  { id:37, parkId:'tiankai', name:'天开5号楼 4F 02室', building:'天开先导区5号楼', area:85.73, floor:'4F', room:'02室', type:'单间', tag:'写字楼', condition:'精装', status:'可租', imgs:['images/tiankai/tiankai_402_01.png','images/tiankai/tiankai_402_02.png','images/tiankai/tiankai_402_03.png'] },
+  { id:38, parkId:'tiankai', name:'天开5号楼 5F 01室', building:'天开先导区5号楼', area:114.21, floor:'5F', room:'01室', type:'单间', tag:'写字楼', condition:'精装', status:'可租', imgs:['images/tiankai/tiankai_501.jpg','images/tiankai/tiankai_501_02.jpg'] },
+  { id:39, parkId:'tiankai', name:'天开5号楼 5F 02室', building:'天开先导区5号楼', area:85.73, floor:'5F', room:'02室', type:'单间', tag:'写字楼', condition:'精装', status:'可租', imgs:['images/tiankai/tiankai_502.jpg','images/tiankai/tiankai_502_02.jpg'] },
+  { id:40, parkId:'tiankai', name:'天开5号楼 5F 03室', building:'天开先导区5号楼', area:88.22, floor:'5F', room:'03室', type:'单间', tag:'写字楼', condition:'精装', status:'可租', imgs:['images/tiankai/tiankai_503.jpg','images/tiankai/tiankai_503_02.jpg'] },
+  { id:41, parkId:'tiankai', name:'天开5号楼 6F 01室', building:'天开先导区5号楼', area:114.21, floor:'6F', room:'01室', type:'单间', tag:'写字楼', condition:'精装', status:'可租', imgs:['images/tiankai/tiankai_601_01.jpg','images/tiankai/tiankai_601_02.jpg'] },
+  { id:42, parkId:'tiankai', name:'天开5号楼 6F 02室', building:'天开先导区5号楼', area:85.73, floor:'6F', room:'02室', type:'单间', tag:'写字楼', condition:'精装', status:'可租', imgs:['images/tiankai/tiankai_602_01.jpg','images/tiankai/tiankai_602_02.jpg'] },
+  { id:43, parkId:'tiankai', name:'天开5号楼 7F 03室', building:'天开先导区5号楼', area:88.22, floor:'7F', room:'03室', type:'单间', tag:'写字楼', condition:'精装', status:'可租', imgs:['images/tiankai/tiankai_703_01.jpg','images/tiankai/tiankai_703_02.jpg'] },
+  { id:44, parkId:'tiankai', name:'天开5号楼 7F 04-1室', building:'天开先导区5号楼', area:84.96, floor:'7F', room:'04-1室', type:'单间', tag:'写字楼', condition:'精装', status:'可租', imgs:['images/tiankai/tiankai_704-1_01.jpg','images/tiankai/tiankai_704-1_02.png'] },
+  { id:45, parkId:'tiankai', name:'天开5号楼 7F 05室', building:'天开先导区5号楼', area:116.44, floor:'7F', room:'05室', type:'单间', tag:'写字楼', condition:'精装', status:'可租', imgs:['images/tiankai/tiankai_705.jpg','images/tiankai/tiankai_705_02.jpg'] },
+  { id:46, parkId:'tiankai', name:'天开5号楼 7F 05-1室', building:'天开先导区5号楼', area:84.96, floor:'7F', room:'05-1室', type:'单间', tag:'写字楼', condition:'精装', status:'可租', imgs:['images/tiankai/tiankai_705-1.jpg','images/tiankai/tiankai_705-1_02.jpg','images/tiankai/tiankai_705-1_03.jpg'] },
+  { id:47, parkId:'tiankai', name:'天开5号楼 9F 04室', building:'天开先导区5号楼', area:116.44, floor:'9F', room:'04室', type:'单间', tag:'写字楼', condition:'精装', status:'可租', imgs:['images/tiankai/tiankai_904.jpg','images/tiankai/tiankai_904_02.jpg'] },
+  { id:48, parkId:'tiankai', name:'天开5号楼 10F 06室', building:'天开先导区5号楼', area:88.22, floor:'10F', room:'06室', type:'单间', tag:'写字楼', condition:'精装', status:'可租', imgs:['images/tiankai/tiankai_1006.jpg','images/tiankai/tiankai_1006_02.jpg'] },
+  { id:49, parkId:'tiankai', name:'天开5号楼 10F 07室', building:'天开先导区5号楼', area:85.73, floor:'10F', room:'07室', type:'单间', tag:'写字楼', condition:'精装', status:'可租', imgs:['images/tiankai/tiankai_1007.jpg','images/tiankai/tiankai_1007_02.jpg'] },
+  { id:50, parkId:'tiankai', name:'天开5号楼 10F 08室', building:'天开先导区5号楼', area:114.21, floor:'10F', room:'08室', type:'单间', tag:'写字楼', condition:'精装', status:'可租', imgs:['images/tiankai/tiankai_1008.jpg','images/tiankai/tiankai_1008_02.jpg'] },
+    // === 西青园（8层办公楼，2-3层食堂，5层/8层空余 + 工位） ===
+  { id:59, parkId:'xiqing', name:'西青园 5F 503室', building:'西青园办公楼', area:224.74, floor:'5F', room:'503室', type:'单间', tag:'写字楼', condition:'精装', status:'可租', img:'xiqing_503.jpg' },
+  { id:60, parkId:'xiqing', name:'西青园 8F 801室', building:'西青园办公楼', area:180.52, floor:'8F', room:'801室', type:'单间', tag:'写字楼', condition:'精装', status:'可租', img:'xiqing_801.jpg' },
+  { id:61, parkId:'xiqing', name:'西青园 8F 802室', building:'西青园办公楼', area:224.74, floor:'8F', room:'802室', type:'单间', tag:'写字楼', condition:'精装', status:'可租', img:'xiqing_802.jpg' },
+  { id:62, parkId:'xiqing', name:'西青园 4F 工位', building:'西青园办公楼', area:'—', floor:'4F', room:'工位', type:'工位', tag:'共享办公', condition:'精装', status:'可租', note:'4层共享工位，灵活按个租赁', customPrice:'300元/月/工位', img:'xiqing_workstation.jpg' },
+
+  // === 津南园（海棠科创园真实数据） ===
+  { id:63, parkId:'jinnan', name:'7层 12号房', building:'海棠科创园', area:204.34, floor:'7F', room:'12号', type:'单间', tag:'写字楼', condition:'精装', status:'可租', imgs:['images/jinnan/jinnan_712_01.jpg','images/jinnan/jinnan_712_02.jpg','images/jinnan/jinnan_712_03.jpg','images/jinnan/jinnan_712_04.jpg'] },
+  { id:64, parkId:'jinnan', name:'10层 12号房', building:'海棠科创园', area:204.34, floor:'10F', room:'12号', type:'单间', tag:'写字楼', condition:'精装', status:'可租', imgs:['images/jinnan/jinnan_1012_01.jpg','images/jinnan/jinnan_1012_02.jpg'] },
+  { id:65, parkId:'jinnan', name:'10层 16号房', building:'海棠科创园', area:204.34, floor:'10F', room:'16号', type:'单间', tag:'写字楼', condition:'精装', status:'可租' },
+  { id:66, parkId:'jinnan', name:'11层 14号房', building:'海棠科创园', area:206.82, floor:'11F', room:'14号', type:'单间', tag:'写字楼', condition:'精装', status:'可租', imgs:['images/jinnan/jinnan_1114_01.jpg','images/jinnan/jinnan_1114_02.jpg','images/jinnan/jinnan_1114_03.jpg','images/jinnan/jinnan_1114_04.jpg'] },
+  { id:67, parkId:'jinnan', name:'12层 11号房', building:'海棠科创园', area:140.19, floor:'12F', room:'11号', type:'单间', tag:'写字楼', condition:'精装', status:'可租', imgs:['images/jinnan/jinnan_1211_01.jpg','images/jinnan/jinnan_1211_02.jpg'] },
+  { id:68, parkId:'jinnan', name:'14层 12号房', building:'海棠科创园', area:204.34, floor:'14F', room:'12号', type:'单间', tag:'写字楼', condition:'精装', status:'可租', imgs:['images/jinnan/jinnan_1412_01.jpg','images/jinnan/jinnan_1412_02.jpg','images/jinnan/jinnan_1412_03.jpg'] },
+  { id:69, parkId:'jinnan', name:'15层 14号房', building:'海棠科创园', area:206.82, floor:'15F', room:'14号', type:'单间', tag:'写字楼', condition:'精装', status:'可租', imgs:['images/jinnan/jinnan_1514_01.jpg','images/jinnan/jinnan_1514_02.jpg','images/jinnan/jinnan_1514_03.jpg'] },
+  { id:70, parkId:'jinnan', name:'18层 12号房', building:'海棠科创园', area:204.34, floor:'18F', room:'12号', type:'单间', tag:'写字楼', condition:'精装', status:'可租', imgs:['images/jinnan/jinnan_1812_01.jpg','images/jinnan/jinnan_1812_02.jpg','images/jinnan/jinnan_1812_03.jpg','images/jinnan/jinnan_1812_04.jpg'] },
+  { id:71, parkId:'jinnan', name:'18层 14号房', building:'海棠科创园', area:206.82, floor:'18F', room:'14号', type:'单间', tag:'写字楼', condition:'精装', status:'可租', imgs:['images/jinnan/jinnan_1814_01.jpg','images/jinnan/jinnan_1814_02.jpg','images/jinnan/jinnan_1814_03.jpg','images/jinnan/jinnan_1814_04.jpg'] },
+  { id:72, parkId:'jinnan', name:'18层 16号房', building:'海棠科创园', area:204.34, floor:'18F', room:'16号', type:'单间', tag:'写字楼', condition:'精装', status:'可租', imgs:['images/jinnan/jinnan_1816_01.jpg','images/jinnan/jinnan_1816_02.jpg','images/jinnan/jinnan_1816_03.jpg','images/jinnan/jinnan_1816_04.jpg'] },
+  // -- 意向房源 --
+  { id:73, parkId:'jinnan', name:'6层 12号房', building:'海棠科创园', area:204.34, floor:'6F', room:'12号', type:'单间', tag:'写字楼', condition:'精装', status:'意向洽谈中', imgs:['images/jinnan/jinnan_612_01.jpg'] },
+  { id:74, parkId:'jinnan', name:'11层 13号房', building:'海棠科创园', area:111.6, floor:'11F', room:'13号', type:'单间', tag:'写字楼', condition:'精装', status:'意向洽谈中' },
+  { id:80, parkId:'jinnan', name:'12层 12号房', building:'海棠科创园', area:204.34, floor:'12F', room:'12号', type:'单间', tag:'写字楼', condition:'精装', status:'意向洽谈中', imgs:['images/jinnan/jinnan_1212_01.jpg','images/jinnan/jinnan_1212_02.jpg'] },
+  { id:81, parkId:'jinnan', name:'12层 13号房', building:'海棠科创园', area:111.6, floor:'12F', room:'13号', type:'单间', tag:'写字楼', condition:'精装', status:'意向洽谈中', imgs:['images/jinnan/jinnan_1213_01.jpg','images/jinnan/jinnan_1213_02.jpg'] },
+  { id:82, parkId:'jinnan', name:'17层 13号房', building:'海棠科创园', area:111.6, floor:'17F', room:'13号', type:'单间', tag:'写字楼', condition:'精装', status:'意向洽谈中', imgs:['images/jinnan/jinnan_1713_01.jpg','images/jinnan/jinnan_1713_02.jpg'] },
+  { id:84, parkId:'jinnan', name:'16层 13号房', building:'海棠科创园', area:111.6, floor:'16F', room:'13号', type:'单间', tag:'写字楼', condition:'精装', status:'意向洽谈中', imgs:['images/jinnan/jinnan_1613_01.jpg','images/jinnan/jinnan_1613_02.jpg'] },
+  { id:85, parkId:'jinnan', name:'8层 15号房', building:'海棠科创园', area:111.6, floor:'8F', room:'15号', type:'单间', tag:'写字楼', condition:'精装', status:'意向洽谈中', imgs:['images/jinnan/jinnan_815_01.jpg','images/jinnan/jinnan_815_02.jpg'] },
+  // -- 即将可租 --
+  { id:76, parkId:'jinnan', name:'13层 12号房', building:'海棠科创园', area:204.34, floor:'13F', room:'12号', type:'单间', tag:'写字楼', condition:'精装', status:'即将可租' },
+
+  // === 南开园（启航大厦） ===
+  { id:77, parkId:'nankai', name:'启航大厦 8F 801-803', building:'启航大厦', area:180, floor:'8F', room:'801-803', type:'分割间', tag:'写字楼', condition:'精装', status:'可租' },
+  { id:78, parkId:'nankai', name:'启航大厦 5F 独立套间', building:'启航大厦', area:120, floor:'5F', room:'套间', type:'分割间', tag:'写字楼', condition:'毛坯', status:'可租' },
+  { id:79, parkId:'nankai', name:'启航大厦 3F 小套间', building:'启航大厦', area:60, floor:'3F', room:'小套间', type:'分割间', tag:'孵化器', condition:'精装', status:'可租' },
+  { id:83, parkId:'nankai', name:'启航大厦 26F 孵化间', building:'启航大厦', area:30, floor:'26F', room:'孵化间', type:'孵化间', tag:'孵化器', condition:'精装', status:'可租', capacity:'1-4人', desc:'26层孵化区，独立办公空间，精装修拎包入驻', imgs:['images/nankai/office_26f_01.jpg'] }
+];
+
+// ===== 园区外观图映射（渲染时自动预置到每个房源图前）=====
+var parkExteriorImgs = {
+  'tanwan': ['images/tanwan/exterior.jpg', 'images/tanwan/exterior_building1.jpg', 'images/tanwan/interior.jpg'],
+  'jinnan': ['images/jinnan/exterior1.jpg'],
+  'tiankai': ['images/tiankai/tiankai_exterior_real.jpg'],
+  'xiqing': ['images/xiqing/exterior.jpg'],
+  'nankai': ['images/nankai/exterior.jpg']
+};
+
+// ===== 工具函数 =====
+let currentTab = 2;
+let pageStack = [];
+let parkFilter = 'all';
+let parkTabFilter = 'all';
+let listParkFilter = 'all';
+
+function getPark(id) { return parks.find(p => p.id === id); }
+
+// Lightbox
+let lbParkId = null, lbCurIdx = 0;
+function openLightbox(parkId, idx) {
+  const imgs = campusImages[parkId];
+  if (!imgs || idx < 0 || idx >= imgs.length) return;
+  lbParkId = parkId; lbCurIdx = idx;
+  showLightboxImage();
+  document.getElementById('lb-overlay').classList.add('show');
+}
+function showLightboxImage() {
+  const imgs = campusImages[lbParkId];
+  if (!imgs) return;
+  const img = imgs[lbCurIdx];
+  document.getElementById('lb-img').src = img.src;
+  document.getElementById('lb-cap').textContent = img.label;
+  document.getElementById('lb-prev').style.display = lbCurIdx > 0 ? 'flex' : 'none';
+  document.getElementById('lb-next').style.display = lbCurIdx < imgs.length - 1 ? 'flex' : 'none';
+}
+function navLightbox(dir) {
+  const imgs = campusImages[lbParkId];
+  if (!imgs) return;
+  const nxt = lbCurIdx + dir;
+  if (nxt >= 0 && nxt < imgs.length) { lbCurIdx = nxt; showLightboxImage(); }
+}
+function closeLightbox() {
+  document.getElementById('lb-overlay').classList.remove('show');
+}
+function parkGradient(id) { const p = getPark(id); return p ? p.gradient : '135deg,#1a6fd4,#56b4fc'; }
+function getEmoji(tag) { return {'写字楼':'&#127970;','研发楼':'&#128300;','孵化器':'&#128640;'}[tag] || '&#127970;'; }
+
+function statusBadge(s) {
+  if (s === '可租') return 'h-tag-green';
+  if (s.includes('意向') || s === '意向洽谈中') return 'h-tag-yellow';
+  if (s.includes('即将') || s === '即将可租' || s === '即将交付') return 'h-tag-orange';
+  if (s === '已租' || s === '暂不可选') return 'h-tag-gray';
+  return 'h-tag-gray';
+}
+
+function getPriceDisplay(house) {
+  const park = getPark(house.parkId);
+  const fi = park.feeInfo;
+  if (!fi.original.totalMonth && !fi.original.totalDesc) return { origPrice: '待定', policyPrice: null, feeDetail: '费用待定' };
+
+  let origPrice = fi.original.totalMonth;
+  let feeDetail = '';
+
+  if (park.id === 'tanwan') {
+    origPrice = '≈47';
+    feeDetail = '1.5~1.6元/天/m²（含房租+物业冷暖）';
+  } else if (park.id === 'tiankai') {
+    origPrice = 100;
+    feeDetail = '服务2.5+物业0.8元/天/m²';
+  } else if (park.id === 'xiqing') {
+    origPrice = 51;
+    feeDetail = '服务1.5+物业0.17元/天/m²';
+  } else if (park.id === 'jinnan') {
+    origPrice = 71;
+    feeDetail = '服务2元/天 + 物业10元/月';
+  } else if (park.id === 'nankai') {
+    origPrice = 74;
+    feeDetail = '服务1.8元/天 + 物业19.5元/月';
+  }
+
+  let policyPrice = null;
+  if (fi.hasPolicy || park.id === 'jinnan') {
+    if (park.id === 'tanwan') policyPrice = '最高免租';
+    else if (park.id === 'tiankai') policyPrice = '最高免租';
+    else if (park.id === 'xiqing') policyPrice = '最高免租';
+    else if (park.id === 'jinnan') policyPrice = '首年≈25元';
+  }
+
+  return { origPrice, policyPrice, feeDetail };
+}
+
+function renderHouseCard(h) {
+  const p = getPark(h.parkId);
+  const { origPrice, policyPrice, feeDetail } = getPriceDisplay(h);
+  // 卡片缩略图：房源图 > 园区外观图
+  var cardImg = h.img || (h.imgs && h.imgs[0]) || (parkExteriorImgs[h.parkId] && parkExteriorImgs[h.parkId][0]) || null;
+
+  let priceHTML = '';
+  if (policyPrice) {
+    priceHTML = `<span class="price-policy">${policyPrice}</span>`;
+  } else {
+    priceHTML = `¥${origPrice}`;
+  }
+
+  return `
+    <div class="house-card" onclick="openHouseDetail(${h.id})">
+      <div class="house-img" style="${cardImg ? '' : 'background:linear-gradient(' + parkGradient(h.parkId) + ')'}">
+        ${cardImg ? '<img src="'+cardImg+'" style="width:100%;height:100%;object-fit:cover">' : '<span style="font-size:32px">'+getEmoji(h.tag)+'</span>'}
+        <span class="floor-badge">${h.floor}</span>
+        <span class="room-badge">${h.room}</span>
+      </div>
+      <div class="house-info">
+        <div class="house-title">${h.name}</div>
+        <div class="house-desc">${p ? p.name : ''} · ${h.building}</div>
+        <div class="house-tags">
+          <span class="h-tag h-tag-blue">${h.customPrice ? h.customPrice : h.area+'m²'}</span>
+          <span class="h-tag ${h.condition==='精装'?'h-tag-green':'h-tag-gray'}">${h.condition}</span>
+          <span class="h-tag ${statusBadge(h.status)}">${h.status}</span>
+          ${h.note ? `<span class="h-tag h-tag-yellow" style="font-size:9px;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${h.note}</span>` : ''}
+        </div>
+        <div class="house-bottom">
+          <div>
+            ${h.customPrice ? `<span class="house-price" style="font-size:15px">${h.customPrice}</span>` : `<span class="house-price">${priceHTML}<span>/m²·月</span></span>`}
+            <div class="house-fees">${h.customPrice ? '' : feeDetail}</div>
+          </div>
+          <span class="house-arrow">&rsaquo;</span>
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderParkCards() {
+  const el = document.getElementById('parkCards');
+  let list = parks;
+  if (parkFilter !== 'all') list = parks.filter(p => p.id === parkFilter);
+  el.innerHTML = list.map(p => {
+    const cnt = houses.filter(h => h.parkId === p.id && (h.status === '可租' || h.status === '即将可租' || h.status === '即将交付')).length;
+    return `
+    <div class="park-card" onclick="openParkDetail('${p.id}')">
+      <div class="park-card-header" style="background:linear-gradient(${p.gradient})">
+        <span class="park-name">${p.name}</span>
+      </div>
+      <div class="park-card-body">
+        <div class="park-card-desc">${p.desc.substring(0,80)}...</div>
+        <div class="park-card-meta">
+          <span class="park-meta-item">&#128205; ${p.loc.substring(0,15)}...</span>
+        </div>
+        ${p.requirements ? `<div class="park-card-req"><b>入驻要求：</b>${p.requirements}</div>` : ''}
+      </div>
+      <div class="park-card-footer">
+        <div class="park-card-tags">${p.highlights.slice(0,3).map(h=>`<span class="park-card-tag">${h}</span>`).join('')}</div>
+        <span class="park-card-count">${cnt}套房源 &rsaquo;</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderHotHouses() {
+  const hot = houses.filter(h => h.status === '可租' || h.status === '即将可租').slice(0, 6);
+  document.getElementById('hotHouses').innerHTML = hot.map(h => renderHouseCard(h)).join('');
+}
+
+function renderAllHouseList() {
+  const el = document.getElementById('allHouseList');
+  let list = houses;
+  if (listParkFilter !== 'all') list = list.filter(h => h.parkId === listParkFilter);
+  const kw = (document.getElementById('listSearch')?.value || '').trim().toLowerCase();
+  if (kw) list = list.filter(h =>
+    h.name.toLowerCase().includes(kw) ||
+    h.building.toLowerCase().includes(kw) ||
+    h.room.toLowerCase().includes(kw) ||
+    h.floor.toLowerCase().includes(kw) ||
+    String(h.area).includes(kw) ||
+    (h.customPrice || '').toLowerCase().includes(kw)
+  );
+  document.getElementById('houseCount').innerHTML = `共 <b>${list.length}</b> 套房源`;
+  if (list.length === 0) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">&#128269;</div><div>暂无符合条件的房源</div><div style="font-size:12px;margin-top:4px">试试换个关键词或园区</div></div>';
+    return;
+  }
+  el.innerHTML = list.map(h => renderHouseCard(h)).join('');
+}
+
+// ===== 园区详情 =====
+function getCellStatusClass(status) {
+  switch(status) {
+    case '可租': return 'cell-avail';
+    case '即将可租': return 'cell-soon';
+    case '即将交付': return 'cell-deliver';
+    case '意向洽谈中': return 'cell-intent';
+    default: return 'cell-avail';
+  }
+}
+
+function getCellTag(status) {
+  switch(status) {
+    case '可租': return '可选';
+    case '即将可租': return '即将';
+    case '即将交付': return '待交付';
+    case '意向洽谈中': return '意向';
+    default: return '';
+  }
+}
+
+function renderFloorGrid(parkId) {
+  const hList = houses.filter(h => h.parkId === parkId);
+  if (hList.length === 0) return '';
+
+  // Group by floor
+  const floorMap = {};
+  hList.forEach(h => {
+    if (!floorMap[h.floor]) floorMap[h.floor] = [];
+    floorMap[h.floor].push(h);
+  });
+
+  // Sort floors descending (high floor first = like cinema screen at top)
+  const floors = Object.keys(floorMap).sort((a, b) => {
+    if (a === '—') return 1;
+    if (b === '—') return -1;
+    const na = parseInt(a), nb = parseInt(b);
+    if (isNaN(na)) return 1;
+    if (isNaN(nb)) return -1;
+    return na - nb;
+  });
+
+  let html;
+  if (parkId === 'tanwan') {
+    html = '<div class="floor-grid floor-matrix"><div class="matrix-wrap">';
+  } else {
+    html = '<div class="floor-grid"><div class="floor-grid-inner">';
+  }
+  // Screen label at top
+  html += `<div class="floor-screen"><span>${getPark(parkId).name} · 楼层选房</span></div>`;
+
+  // For tanwan park: matrix layout (buildings=columns, floors=rows)
+  if (parkId === 'tanwan') {
+    const buildings = ['1', '2', '3A', '3B', '3C', '3D', '4'];
+    const tFloors = ['1F', '2F', '3F', '4F', '5F'];
+
+    // Build lookup: key = building|floor → house
+    const cellMap = {};
+    hList.forEach(h => {
+      const bMatch = h.room.match(/^(\d+[A-D]?)号/);
+      const bKey = bMatch ? bMatch[1] : '';
+      cellMap[bKey + '|' + h.floor] = h;
+    });
+
+    // Header row
+    html += '<div class="matrix-row matrix-header">';
+    html += '<div class="matrix-corner"></div>';
+    buildings.forEach(b => {
+      html += `<div class="matrix-col-hdr">${b}</div>`;
+    });
+    html += '</div>';
+
+    // Data rows - floors ascending
+    tFloors.forEach(floor => {
+      html += '<div class="matrix-row">';
+      html += `<div class="matrix-row-hdr">${floor}</div>`;
+      buildings.forEach(b => {
+        const h = cellMap[b + '|' + floor];
+        if (h) {
+          const cs = getCellStatusClass(h.status);
+          const tag = getCellTag(h.status);
+          html += `<div class="floor-cell matrix-cell ${cs}" onclick="event.stopPropagation();openHouseDetail(${h.id})" title="${h.name} · ${typeof h.area === 'number' ? h.area + 'm²' : h.area}">
+            <span class="cell-tag">${tag}</span>
+            <span class="cell-room">${typeof h.area === 'number' ? h.area + '㎡' : h.area}</span>
+          </div>`;
+        } else {
+          html += '<div class="floor-cell matrix-cell cell-empty"></div>';
+        }
+      });
+      html += '</div>';
+    });
+  } else {
+    // Original floor-group logic for non-tanwan parks
+    floors.forEach(floor => {
+      const rooms = floorMap[floor];
+      rooms.sort((a, b) => {
+        const na = parseInt(a.room), nb = parseInt(b.room);
+        if (!isNaN(na) && !isNaN(nb)) return na - nb;
+        return a.room.localeCompare(b.room);
+      });
+      html += '<div class="floor-row">';
+      html += `<div class="floor-label">${floor}</div>`;
+      html += '<div class="floor-cells">';
+      rooms.forEach(h => {
+        const cs = getCellStatusClass(h.status);
+        const tag = getCellTag(h.status);
+        html += `<div class="floor-cell ${cs}" onclick="event.stopPropagation();openHouseDetail(${h.id})" title="${h.name} · ${typeof h.area === 'number' ? h.area + 'm²' : h.area}">
+          <span class="cell-tag">${tag}</span>
+          <span class="cell-room">${h.room}</span>
+          <span class="cell-area">${typeof h.area === 'number' ? h.area + '㎡' : h.area}</span>
+        </div>`;
+      });
+      html += '</div></div>';
+    });
+  }
+
+  html += '</div></div>';
+  return html;
+}
+
+function openParkDetail(parkId, noPush) {
+  const p = getPark(parkId);
+  if (!p) return;
+  if (!noPush) pageStack.push({ tab: currentTab });
+  document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active'));
+  const detailPage = document.getElementById('page-detail');
+  detailPage.classList.add('active');
+
+  const hList = houses.filter(h => h.parkId === parkId);
+  const availCnt = hList.filter(h => h.status === '可租' || h.status === '即将可租' || h.status === '即将交付').length;
+
+  // 根据园区生成不同图例
+  let legendHTML = '';
+  if (parkId === 'jinnan') {
+    legendHTML = `
+      <div class="legend-bar">
+        <div class="legend-item"><span class="legend-dot" style="background:#fff;border:2px solid #1a6fd4"></span>可选</div>
+        <div class="legend-item"><span class="legend-dot green"></span>即将可租</div>
+        <div class="legend-item"><span class="legend-dot yellow"></span>有意向</div>
+      </div>`;
+  } else if (parkId === 'tiankai') {
+    legendHTML = `
+      <div class="legend-bar">
+        <div class="legend-item"><span class="legend-dot white"></span>可选择</div>
+        <div class="legend-item"><span class="legend-dot yellow"></span>有意向</div>
+        <div class="legend-item"><span class="legend-dot gray"></span>暂不可选</div>
+      </div>`;
+  } else if (parkId === 'xiqing') {
+    legendHTML = `
+      <div class="legend-bar">
+        <div class="legend-item"><span class="legend-dot white"></span>可选择</div>
+      </div>`;
+  }
+
+  const fi = p.feeInfo;
+  const fac = p.facilities;
+
+  // 费用卡片
+  let feeCardHTML = '';
+  if (fi.original.totalMonth || fi.original.totalDesc) {
+    const orig = fi.original;
+    feeCardHTML = `
+    <div class="fee-compare" style="margin-top:12px">
+      <div class="fee-compare-title">&#128203; 费用明细</div>
+      ${orig.serviceDesc ? `<div class="fee-compare-row"><span class="fee-compare-park">费用</span><span class="fee-compare-detail">${orig.serviceDesc}</span><span class="fee-compare-price" style="color:#1a6fd4;font-size:10px">${orig.serviceCollector || ''}</span></div>` : ''}
+      ${orig.propertyDesc ? `<div class="fee-compare-row"><span class="fee-compare-park">物业费</span><span class="fee-compare-detail">${orig.propertyDesc}</span><span class="fee-compare-price" style="color:#999;font-size:10px">${orig.propertyCollector || '产权方收取'}</span></div>` : ''}
+      ${orig.extraDesc ? `<div class="fee-compare-row" style="font-size:10px;color:#666;padding-top:6px;border-top:1px dashed #eee;margin-top:4px"><span class="fee-compare-park">其他费用</span><span class="fee-compare-detail" style="line-height:1.8">${orig.extraDesc}</span></div>` : ''}
+      ${orig.formula ? `<div class="fee-compare-row" style="color:#999;font-size:10px"><span class="fee-compare-park"></span><span class="fee-compare-detail">计费：${orig.formula}</span></div>` : ''}
+      <div class="fee-compare-row" style="font-weight:700;color:#222;font-size:12px"><span class="fee-compare-park">合计</span><span class="fee-compare-detail"></span><span class="fee-compare-price">${orig.totalDesc}</span></div>
+      ${fi.hasPolicy ? `<div style="margin-top:8px;padding:8px 10px;background:#e6f7ef;border-radius:8px;font-size:11px;color:#1a7a3a;line-height:1.6"><b>政策优惠：</b>${fi.policy.detail}</div>` : ''}
+      ${(!fi.hasPolicy && parkId !== 'tanwan') ? `<div style="margin-top:8px;padding:8px 10px;background:#fffbe6;border-radius:8px;font-size:11px;color:#8a7200">当前暂无特殊优惠政策</div>` : ''}
+    </div>`;
+  } else {
+    feeCardHTML = `
+    <div class="fee-note" style="margin-top:12px;background:#fffbe6;border-color:#f5e6b0">
+      <span class="fee-note-icon">&#9203;</span>
+      <div class="fee-note-text" style="color:#8a7200"><b>费用待定</b><br>${fi.original.totalDesc || '待定'}</div>
+    </div>`;
+  }
+
+  // 津南园无硕果计划政策（硕果计划为碳湾园专享）
+  let policyDocHTML = '';
+  let indicatorHTML = '';
+  if (parkId === 'jinnan') {
+    // 津南园不再展示硕果计划政策文件
+  }
+
+  // 天开园政策文件 + ABC分类表
+  if (parkId === 'tiankai') {
+    policyDocHTML = `
+    <div class="policy-doc-card" onclick="window.open('天开园政策申报指南_2025企业版.xlsx','_blank')" style="margin:12px 16px 0">
+      <div class="doc-icon">&#128196;</div>
+      <div class="doc-body">
+        <h4>天开园政策申报指南（2025企业版）</h4>
+        <p>完整政策文件：天开园45条政策，企业可享受条款详见表格文件</p>
+        <div class="doc-meta">
+          <span>&#128197; 2025版</span>
+          <span>&#128209; Excel文件</span>
+        </div>
+        <span class="doc-dl-btn">&#128229; 查看/下载Excel文件</span><span class="doc-dl-tip">&#128187; 仅电脑端可下载</span>
+      </div>
+    </div>`;
+
+    indicatorHTML = `
+    <div class="indicator-card">
+      <div class="indicator-title">&#127942; 企业分类与租金折扣标准</div>
+      <div style="overflow-x:auto">
+        <table class="indicator-table">
+          <thead><tr><th style="text-align:center">类别</th><th>条件</th><th style="text-align:center">第一年</th><th style="text-align:center">第二年</th><th style="text-align:center">第三年</th></tr></thead>
+          <tbody>
+            <tr>
+              <td style="text-align:center;color:#1a7a3a;font-weight:700">A类</td>
+              <td>天大在职教师担任董事长/法人/总经理，转化天大成果</td>
+              <td class="amt" style="color:#1a7a3a">20%</td>
+              <td class="amt" style="color:#1a7a3a">20%</td>
+              <td class="amt" style="color:#1a7a3a">20%</td>
+            </tr>
+            <tr>
+              <td style="text-align:center;color:#1a6fd4;font-weight:700">B类</td>
+              <td>天大毕业5年以上创办的企业任董事长/法人/总经理/股东/技术总监；或与天大科研团队/在职教师有技术合作并转化</td>
+              <td class="amt" style="color:#1a6fd4">20%</td>
+              <td class="amt" style="color:#1a6fd4">50%</td>
+              <td class="amt" style="color:#1a6fd4">70%</td>
+            </tr>
+            <tr>
+              <td style="text-align:center;color:#999;font-weight:700">C类</td>
+              <td>除A、B类以外的其他企业</td>
+              <td class="amt" style="color:#999">100%</td>
+              <td class="amt" style="color:#999">100%</td>
+              <td class="amt" style="color:#999">100%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="indicator-note">
+        &#128161; <b>年度考核返租：</b>根据企业注册时间，在自然年结束和租赁年结束对入驻企业进行考核打分（科技含量、经济贡献、经营发展、配合度等），分数60分以上、80分以上对应不同返还标准<br>
+        · A类企业年费用仅约<b>20元/月/m²</b>（标准价100元的20%）
+      </div>
+    </div>`;
+  }
+
+  // 西青园减免指标表格 + 人才公寓
+  if (parkId === 'xiqing') {
+    if (fi.policy.indicators) {
+      const xiRows = fi.policy.indicators.map(ind => `
+        <tr>
+          <td style="text-align:center">${ind.seq}</td>
+          <td>${ind.name}</td>
+          <td>${ind.detail}</td>
+          <td class="amt">${ind.amt}元/天/m²</td>
+        </tr>
+      `).join('');
+      policyDocHTML = `
+        <div class="indicator-card">
+          <div class="indicator-title">&#127942; 服务费减免指标（9项）</div>
+          <div style="overflow-x:auto">
+            <table class="indicator-table">
+              <thead><tr><th style="width:28px;text-align:center">#</th><th>指标</th><th>细节</th><th style="width:80px;text-align:center">减免金额</th></tr></thead>
+              <tbody>${xiRows}</tbody>
+            </table>
+          </div>
+          <div class="indicator-note">
+            &#128161; <b>以上减免金额均从原价1.5元/天/m²中扣减，扣完为止</b><br>
+            · 服务费区间：0~1.5元/天/m²<br>
+            · 首年默认满足所有减免指标（即0元/天/m²免租）；次年起年度考核调整<br>
+            · 三大支柱（海棠/宣怀/科技园）+ 金种子推荐企业可免费<br>
+            · 首年考核频率半年/次（不改变服务费金额）<br>
+            · 物业费0.17元/天/m²（≈5元/月/m²）不变<br>
+            · 工位：300元/月/工位
+          </div>
+        </div>`;
+    }
+
+    // 人才公寓视频卡片
+    indicatorHTML = `
+    <div class="indicator-card">
+      <div class="indicator-title">&#127968; 人才公寓</div>
+      <div style="text-align:center;margin:8px 0">
+        <div class="apt-video-wrapper" style="position:relative;display:inline-block;width:100%;max-width:360px;border-radius:8px;overflow:hidden;background:#000;cursor:pointer" onclick="playAptVideo(this)" data-src="images/xiqing/apartment_video.mp4">
+          <video class="apt-video-el" controls playsinline webkit-playsinline preload="none" x-webkit-airplay="allow" style="width:100%;display:none;border-radius:8px" onloadedmetadata="this.style.display='block';this.parentNode.querySelector('.apt-play-overlay').style.display='none'"></video>
+          <div class="apt-play-overlay" style="display:flex;flex-direction:column;align-items:center;justify-content:center;aspect-ratio:16/9;min-height:200px">
+            <div class="apt-play-btn" style="width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,0.9);display:flex;align-items:center;justify-content:center;font-size:22px">▶</div>
+            <div class="apt-play-text" style="color:#ccc;font-size:12px;margin-top:8px">点击播放视频</div>
+            <div class="apt-loading" style="display:none;color:#ccc;font-size:12px;margin-top:8px">
+              <span class="apt-progress">加载中...</span>
+            </div>
+          </div>
+        </div>
+        <div style="font-size:10px;color:#999;margin-top:4px">如无法播放请<a href="images/xiqing/apartment_video.mp4" download style="color:#4A90D9">点击下载</a></div>
+      </div>
+      <div style="font-size:11px;color:#666;line-height:1.8;margin-top:8px">
+        &#128204; <b>人才公寓详情：</b>步行100m即可抵达<br>
+        · 户型：四人间 / 家庭房 / 二人间 / 一人间<br>
+        · 费用：<b>¥2,400/月</b>（含网络费、能源费（暖气+空调）、物业费）<br>
+        · 租客另付：水费 7.9元/吨、电费 0.9元/度<br>
+        · 高端人才可享政策优惠
+      </div>
+    </div>`;
+  }
+
+  // 津南园减免指标表格
+  if (parkId === 'jinnan' && fi.policy.indicators) {
+    const rows = fi.policy.indicators.map(ind => `
+      <tr>
+        <td style="text-align:center">${ind.seq}</td>
+        <td>${ind.name}</td>
+        <td>${ind.detail}</td>
+        <td class="amt">${ind.amt}元/天/m²</td>
+      </tr>
+    `).join('');
+    indicatorHTML = `
+    <div class="indicator-card">
+      <div class="indicator-title">&#127942; 服务费减免指标（8项）</div>
+      <div style="overflow-x:auto">
+        <table class="indicator-table">
+          <thead><tr><th style="width:28px;text-align:center">#</th><th>指标</th><th>细节</th><th style="width:80px;text-align:center">减免金额</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+      <div class="indicator-note">
+        &#128161; <b>以上减免金额均从原价2元/天/m²中扣减，扣完为止</b><br>
+        · 服务费区间：2~0.5元/天/m²（最高减免1.5元）<br>
+        · 首年默认最低价0.5元/天/m²；协议有效期12个月，期满后考核调整<br>
+        · 物业费统一10元/月/m²（海投收取）
+      </div>
+    </div>`;
+  }
+
+  // 碳湾园硕果计划
+  let shuoguoHTML = '';
+  if (parkId === 'tanwan') {
+    shuoguoHTML = `
+    <div class="indicator-card">
+      <div class="indicator-title">&#127891; 硕果计划 · 最高免租</div>
+      <div style="font-size:11px;color:#666;line-height:1.8">
+        <p>碳湾园专享<b>硕果计划</b>，为优质科创企业提供最高力度租金减免：</p>
+        <p style="margin-top:6px">· <b>免租期：</b>符合条件的入驻企业可享最长免租期</p>
+        <p>· <b>租金减免：</b>硕果计划企业可享最高比例的租金减免</p>
+        <p>· <b>产业配套：</b>碳产业链企业优先，研发中试需求优先</p>
+        <p>· <b>申请方式：</b>提交商业计划书+入园评审，以最终签约确认为准</p>
+      </div>
+      <div class="indicator-note">
+        &#128161; 碳湾园预计<b>2026年8月竣工</b>，即日起欢迎意向企业提前咨询预约！
+      </div>
+    </div>`;
+  }
+
+  // 配套卡片
+  const facHTML = `
+    <div class="facility-card">
+      <div class="facility-title">&#127959; 园区配套</div>
+      <div class="facility-grid">
+        <div class="facility-item"><div class="fi-label">停车</div><div class="fi-val">${fac.parking}</div></div>
+        <div class="facility-item"><div class="fi-label">会议室</div><div class="fi-val">${fac.meeting}</div></div>
+        <div class="facility-item"><div class="fi-label">电费</div><div class="fi-val">${fac.electricity}</div></div>
+        <div class="facility-item"><div class="fi-label">采暖</div><div class="fi-val">${fac.heating}</div></div>
+      </div>
+      <div style="margin-top:8px;font-size:11px;color:#666;line-height:1.5">&#128204; ${fac.other}</div>
+    </div>`;
+
+  // 统计意向房源数量
+  const intentCnt = hList.filter(h => h.status === '意向洽谈中').length;
+
+  // 园区外观图
+  const imgs = campusImages[parkId];
+  let campusGalleryHTML = '';
+  if (imgs && imgs.length > 0) {
+    if (parkId === 'jinnan' || parkId === 'tiankai' || parkId === 'xiqing' || parkId === 'tanwan' || parkId === 'nankai') {
+      // 津南园/天开园/西青园：外观大图 + 分类缩略画廊
+      campusGalleryHTML = `<div class="campus-gallery"><img src="${imgs[0].src}" alt="${imgs[0].label}"><div class="gallery-label">${imgs[0].label}</div></div>`;
+      // Group by category, skip first (exterior already shown)
+      const cats = {};
+      for (let i = 1; i < imgs.length; i++) {
+        const c = imgs[i].cat || '其他';
+        if (!cats[c]) cats[c] = [];
+        cats[c].push(imgs[i]);
+      }
+      if (Object.keys(cats).length > 0) {
+        campusGalleryHTML += '<div class="image-gallery">';
+  let catOrder = ['办公空间', '公共配套', '政策文件'];
+        catOrder.forEach(cat => {
+          if (!cats[cat]) return;
+          campusGalleryHTML += `<div class="gallery-cat"><div class="gallery-cat-title">&#128247; ${cat}</div><div class="gallery-row">`;
+          cats[cat].forEach((img, idx) => {
+            const globalIdx = imgs.indexOf(img);
+            campusGalleryHTML += `<div class="gallery-item"><img class="gallery-thumb" src="${img.src}" alt="${img.label}" onclick="openLightbox('${parkId}',${globalIdx})"><div class="gallery-cap">${img.label}</div></div>`;
+          });
+          campusGalleryHTML += '</div></div>';
+        });
+        campusGalleryHTML += '</div>';
+      }
+    } else if (parkId === 'nankai') {
+      // 南开园：平面图并列展示
+      campusGalleryHTML = '<div class="image-gallery"><div class="gallery-cat"><div class="gallery-cat-title">&#128208; 平面图</div><div class="gallery-row">';
+      imgs.forEach((img, idx) => {
+        campusGalleryHTML += `<div class="gallery-item"><img class="gallery-thumb" src="${img.src}" alt="${img.label}" onclick="openLightbox('nankai',${idx})"><div class="gallery-cap">${img.label}</div></div>`;
+      });
+      campusGalleryHTML += '</div></div></div>';
+    } else {
+      campusGalleryHTML = `<div class="campus-gallery"><img src="${imgs[0].src}" alt="${imgs[0].label}"><div class="gallery-label">${imgs[0].label}</div></div>`;
+    }
+  } else {
+    campusGalleryHTML = `<div class="campus-placeholder"><div class="ph-icon">&#127970;</div><div class="ph-title">园区实景即将上线</div><div class="ph-sub">${parkId==='tanwan'?'预计2026年8月竣工后拍摄实景':'敬请期待'}</div></div>`;
+  }
+
+  detailPage.innerHTML = `
+    <div class="park-detail-hero ${p.detailClass}">
+      <h2>${p.name}</h2>
+      <p>${p.loc}</p>
+    </div>
+    ${campusGalleryHTML}
+    ${p.floorPlan ? `<div class="floorplan-section" style="margin-top:12px"><div class="section-header" style="padding-left:0"><span class="section-title">房型图</span></div><img src="${p.floorPlan}" alt="${p.name}房型图" loading="lazy">${p.floorPlanNote ? `<div class="floorplan-note">${p.floorPlanNote}</div>` : ''}</div>` : ''}
+    <div class="park-detail-info">
+      <div class="info-grid">
+        <div class="info-item"><div class="info-val">${p.areaDisplay}</div><div class="info-key">运营面积</div></div>
+        <div class="info-item"><div class="info-val">${p.year}</div><div class="info-key">开园时间</div></div>
+        <div class="info-item"><div class="info-val">${availCnt}套${intentCnt>0?' · '+intentCnt+'意向':''}</div><div class="info-key">房源</div></div>
+      </div>
+      <div class="park-detail-desc">${p.desc}</div>
+    </div>
+    <div style="padding:0 16px">
+      <div class="section-header" style="padding-left:0"><span class="section-title">园区亮点</span></div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        ${p.highlights.map(h => `<div class="park-card-tag" style="font-size:13px;padding:6px 14px">${h}</div>`).join('')}
+      </div>
+      ${legendHTML}
+      ${(() => { const fg = renderFloorGrid(parkId); return fg; })()}
+      ${p.requirements ? `<div class="park-detail-req"><div class="park-detail-req-title">&#128220; 入驻要求</div>${p.requirements}</div>` : ''}
+    </div>
+    ${feeCardHTML}
+    ${shuoguoHTML}
+    ${policyDocHTML}
+    ${indicatorHTML}
+    ${facHTML}
+    <div class="section-header"><span class="section-title">房源列表</span><span class="section-more">${hList.length}套</span></div>
+    <div class="house-list">${hList.map(h => renderHouseCard(h)).join('')}</div>
+    <div style="padding:16px;text-align:center">
+      <img src="wechat-qrcode.png" alt="招商微信二维码" style="width:130px;height:130px;border-radius:8px;border:1px solid #f0f0f0">
+      <div style="font-size:13px;font-weight:600;color:#222;margin-top:8px">扫码添加招商微信 · 领取专属入驻方案</div>
+      <div style="margin-top:12px;padding-top:12px;border-top:1px dashed #e0e0e0">
+        <div style="font-size:12px;color:#999;margin-bottom:4px">招商热线</div>
+        <div style="font-size:16px;font-weight:700;color:#1a6fd4">133-2348-1895（孙）</div>
+        <div style="font-size:16px;font-weight:700;color:#1a6fd4;margin-top:3px">133-2347-1895（张）</div>
+      </div>
+    </div>
+    <div style="height:20px"></div>
+  `;
+  document.getElementById('topTitle').textContent = p.name;
+  document.getElementById('backBtn').style.display = 'flex';
+  currentTab = -1;
+  window.scrollTo(0, 0);
+}
+
+// ===== 房源详情 =====
+function openHouseDetail(houseId) {
+  const h = houses.find(x => x.id === houseId);
+  if (!h) return;
+  const p = getPark(h.parkId);
+  const fi = p.feeInfo;
+  const { origPrice, policyPrice } = getPriceDisplay(h);
+
+  const detailPage = document.getElementById('page-detail');
+  const wasInParkDetail = detailPage.classList.contains('active');
+  detailPage.classList.add('active');
+  document.querySelectorAll('.page').forEach(pg => { if (pg !== detailPage) pg.classList.remove('active'); });
+  pageStack.push(wasInParkDetail ? { tab: currentTab, backToPark: h.parkId } : { tab: currentTab });
+
+  let noteHTML = '';
+  if (h.note) noteHTML = `<div style="background:#fff8e6;border:1px solid #f5e6b0;border-radius:10px;padding:10px 12px;margin-top:10px;font-size:12px;color:#8a7200">&#128161; ${h.note}</div>`;
+
+  const orig = fi.original;
+  let feeTagsHTML = '';
+  if (!h.customPrice) {
+    if (orig.serviceDesc) feeTagsHTML += `<span style="font-size:11px;color:#666;background:#f5f6fa;padding:4px 10px;border-radius:6px">${orig.serviceCollector ? '服务+物业费' : '服务费'} ${orig.serviceDesc}</span>`;
+    if (orig.propertyDesc) feeTagsHTML += `<span style="font-size:11px;color:#666;background:#f5f6fa;padding:4px 10px;border-radius:6px">物业费 ${orig.propertyDesc}</span>`;
+  }
+
+  let policyNoteHTML = '';
+  if (fi.hasPolicy) {
+    policyNoteHTML = `<div style="margin-top:8px;padding:8px 10px;background:#e6f7ef;border-radius:8px;font-size:11px;color:#1a7a3a;line-height:1.6"><b>&#9989; 政策优惠：</b>${fi.policy.detail}</div>`;
+  }
+
+  let priceDisplayHTML = '';
+  if (policyPrice) {
+    priceDisplayHTML = `<span class="price-policy" style="font-size:18px">${policyPrice}</span>`;
+  } else {
+    priceDisplayHTML = `¥${origPrice}`;
+  }
+
+  const fac = p.facilities;
+  const facHTML = `
+    <div style="margin:12px 0">
+      <div style="font-size:13px;font-weight:700;color:#222;margin-bottom:6px">&#127959; 园区配套</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+        <div style="background:#f8f9fc;border-radius:8px;padding:8px;font-size:11px"><span style="color:#999">停车：</span>${fac.parking}</div>
+        <div style="background:#f8f9fc;border-radius:8px;padding:8px;font-size:11px"><span style="color:#999">会议室：</span>${fac.meeting}</div>
+        <div style="background:#f8f9fc;border-radius:8px;padding:8px;font-size:11px"><span style="color:#999">电费：</span>${fac.electricity}</div>
+        <div style="background:#f8f9fc;border-radius:8px;padding:8px;font-size:11px"><span style="color:#999">采暖：</span>${fac.heating}</div>
+      </div>
+      <div style="font-size:11px;color:#999;margin-top:6px">&#128204; ${fac.other}</div>
+    </div>`;
+
+  // 构建图片区域（自动预置园区外观图）
+  let imgsArr = (h.imgs || (h.img ? [h.img] : [])).slice();
+  var extImgs = parkExteriorImgs[h.parkId] || [];
+  if (extImgs.length > 0) imgsArr = imgsArr.concat(extImgs);
+  let imgSectionHTML = '';
+  if (imgsArr.length > 0) {
+    let imgsHTML = imgsArr.map((src, i) => `<img src="${src}" style="width:100%;height:100%;object-fit:cover;flex-shrink:0" alt="实景${i+1}">`).join('');
+    let dotsHTML = imgsArr.length > 1 ? imgsArr.map((_, i) => `<span onclick="detailSlideTo(${i})" id="detailDot${i}" style="display:inline-block;width:8px;height:8px;border-radius:50%;margin:0 3px;background:${i===0?'#fff':'rgba(255,255,255,0.4)'};cursor:pointer;transition:background .2s"></span>`).join('') : '';
+    let arrowsHTML = imgsArr.length > 1 ? `
+      <div onclick="detailSlide(-1)" style="position:absolute;top:50%;left:8px;transform:translateY(-50%);width:32px;height:32px;background:rgba(0,0,0,0.35);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;cursor:pointer;z-index:2">←</div>
+      <div onclick="detailSlide(1)" style="position:absolute;top:50%;right:8px;transform:translateY(-50%);width:32px;height:32px;background:rgba(0,0,0,0.35);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;cursor:pointer;z-index:2">→</div>` : '';
+    imgSectionHTML = `
+    <div id="detailImgWrap" style="position:relative;height:260px;overflow:hidden;background:linear-gradient(${parkGradient(h.parkId)})">
+      <div id="detailImgTrack" style="display:flex;transition:transform .3s;height:100%;width:100%" data-img-track>
+        ${imgsHTML}
+      </div>
+      ${arrowsHTML}
+      ${dotsHTML ? `<div id="detailDots" style="position:absolute;bottom:10px;left:50%;transform:translateX(-50%);z-index:2">${dotsHTML}</div>` : ''}
+    </div>`;
+  } else {
+    imgSectionHTML = `<div style="height:260px;background:linear-gradient(${parkGradient(h.parkId)});display:flex;align-items:center;justify-content:center;overflow:hidden"><span style="font-size:64px">${getEmoji(h.tag)}</span></div>`;
+  }
+
+  detailPage.innerHTML = `
+    ${imgSectionHTML}
+    <div style="background:#fff;margin:-16px 16px 0;border-radius:16px;padding:16px;box-shadow:0 2px 12px rgba(0,0,0,0.06)">
+      <div style="font-size:18px;font-weight:700;color:#222;margin-bottom:4px">${h.name}</div>
+      <div style="font-size:12px;color:#999;margin-bottom:8px">${p ? p.name : ''} · ${h.building} · ${h.room}</div>
+      ${h.desc ? `<div style="font-size:12px;color:#666;margin-bottom:8px;line-height:1.5">${h.desc}${h.capacity ? ' · 可容纳'+h.capacity : ''}</div>` : ''}
+      ${h.customPrice ? `<div style="font-size:22px;font-weight:700;color:#e84040;margin-bottom:4px">${h.customPrice}</div>` : `<div style="font-size:26px;font-weight:700;color:#e84040;margin-bottom:4px">${priceDisplayHTML}<span style="font-size:14px;font-weight:400;color:#888">/m²·月</span></div>`}
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">${feeTagsHTML}</div>
+      ${policyNoteHTML}
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px">
+        <div style="background:#f8f9fc;border-radius:10px;padding:10px;text-align:center"><div style="font-size:15px;font-weight:600">${h.type}</div><div style="font-size:11px;color:#999">户型</div></div>
+        <div style="background:#f8f9fc;border-radius:10px;padding:10px;text-align:center"><div style="font-size:15px;font-weight:600">${h.customPrice ? h.customPrice : h.area+'m²'}</div><div style="font-size:11px;color:#999">${h.customPrice ? '价格' : (h.capacity ? '面积/容纳' : '面积')}</div>${h.capacity && !h.customPrice ? `<div style="font-size:10px;color:#1a6fd4;margin-top:2px">${h.capacity}</div>` : ''}</div>
+        <div style="background:#f8f9fc;border-radius:10px;padding:10px;text-align:center"><div style="font-size:15px;font-weight:600">${h.floor}</div><div style="font-size:11px;color:#999">楼层</div></div>
+        <div style="background:#f8f9fc;border-radius:10px;padding:10px;text-align:center"><div style="font-size:15px;font-weight:600">${h.tag}</div><div style="font-size:11px;color:#999">楼型</div></div>
+        <div style="background:#f8f9fc;border-radius:10px;padding:10px;text-align:center"><div style="font-size:15px;font-weight:600">${h.condition}</div><div style="font-size:11px;color:#999">装修</div></div>
+        <div style="background:#f8f9fc;border-radius:10px;padding:10px;text-align:center"><div style="font-size:15px;font-weight:600;color:${h.status==='可租'?'#27ae60':h.status.includes('意向')?'#e67e22':'#1a6fd4'}">${h.status}</div><div style="font-size:11px;color:#999">状态</div></div>
+      </div>
+      ${noteHTML}
+      ${facHTML}
+    </div>
+    ${p.floorPlan ? `<div class="floorplan-section" style="margin-top:12px"><div class="section-header" style="padding-left:0"><span class="section-title">${p.name} 房型图</span></div><img src="${p.floorPlan}" alt="${p.name}房型图" loading="lazy" style="width:100%;border-radius:10px;border:1px solid #e8e8e8">${p.floorPlanNote ? `<div class="floorplan-note">${p.floorPlanNote}</div>` : ''}</div>` : ''}
+    <div style="padding:16px;text-align:center">
+      <img src="wechat-qrcode.png" alt="招商微信二维码" style="width:130px;height:130px;border-radius:8px;border:1px solid #f0f0f0">
+      <div style="font-size:13px;font-weight:600;color:#222;margin-top:8px">扫码添加招商微信 · 领取专属入驻方案</div>
+      <div style="font-size:11px;color:#bbb;margin-top:2px">${p ? p.name : ''}</div>
+      <div style="margin-top:12px;padding-top:12px;border-top:1px dashed #e0e0e0">
+        <div style="font-size:12px;color:#999;margin-bottom:4px">招商热线</div>
+        <div style="font-size:16px;font-weight:700;color:#1a6fd4">133-2348-1895（孙）</div>
+        <div style="font-size:16px;font-weight:700;color:#1a6fd4;margin-top:3px">133-2347-1895（张）</div>
+      </div>
+    </div>
+    <div style="height:20px"></div>
+  `;
+  document.getElementById('topTitle').textContent = '房源详情';
+  document.getElementById('backBtn').style.display = 'flex';
+  currentTab = -1;
+  window.scrollTo(0, 0);
+}
+
+// ===== 详情页图片轮播 =====
+var detailImgIdx = 0;
+var detailImgTotal = 0;
+function detailSlide(dir) {
+  var track = document.getElementById('detailImgTrack');
+  if (!track) return;
+  var imgs = track.querySelectorAll('img');
+  detailImgTotal = imgs.length;
+  detailImgIdx = (detailImgIdx + dir + detailImgTotal) % detailImgTotal;
+  track.style.transform = 'translateX(-' + (detailImgIdx * 100) + '%)';
+  // 更新dots
+  for (var i = 0; i < detailImgTotal; i++) {
+    var dot = document.getElementById('detailDot'+i);
+    if (dot) dot.style.background = i === detailImgIdx ? '#fff' : 'rgba(255,255,255,0.4)';
+  }
+}
+function detailSlideTo(n) {
+  var track = document.getElementById('detailImgTrack');
+  if (!track) return;
+  var imgs = track.querySelectorAll('img');
+  detailImgTotal = imgs.length;
+  detailImgIdx = n;
+  track.style.transform = 'translateX(-' + (detailImgIdx * 100) + '%)';
+  for (var i = 0; i < detailImgTotal; i++) {
+    var dot = document.getElementById('detailDot'+i);
+    if (dot) dot.style.background = i === detailImgIdx ? '#fff' : 'rgba(255,255,255,0.4)';
+  }
+}
+
+// ===== 咨询弹窗 =====
+function openContact() {
+  document.getElementById('contactModal').classList.add('show');
+}
+function closeContact(e) {
+  if (e && e.target !== document.getElementById('contactModal')) return;
+  document.getElementById('contactModal').classList.remove('show');
+}
+
+// ===== 费用计算器 =====
+function setCalcArea(area) {
+  const input = document.getElementById('calcArea');
+  input.value = area;
+  document.querySelectorAll('#calcQuickBtns .calc-quick-chip').forEach(c => c.classList.remove('active'));
+  event.target.classList.add('active');
+  calcFee();
+}
+function calcFee() {
+  const area = parseFloat(document.getElementById('calcArea').value);
+  const parkId = document.getElementById('calcPark').value;
+  const resultEl = document.getElementById('calcResult');
+  const tipEl = document.getElementById('calcPolicyTip');
+  const stdEl = document.getElementById('calcStandard');
+  resultEl.classList.remove('show');
+  tipEl.style.display = 'none';
+  stdEl.style.display = 'none';
+  if (!area || area <= 0 || !parkId) return;
+  
+  const park = parks.find(p => p.id === parkId);
+  if (!park || !park.feeInfo.calc) return;
+  
+  const c = park.feeInfo.calc;
+  const daysPerMonth = 365 / 12;
+  const fmt = n => '¥' + Math.round(n).toLocaleString('zh-CN');
+  
+  // 计算物业费（不受政策影响的基准）
+  let propMonth;
+  if (c.propType === 'day') {
+    propMonth = area * c.propDay * daysPerMonth;
+  } else {
+    propMonth = area * c.propMonth;
+  }
+  
+  // --- 标准价（无政策） ---
+  let stdServMonth = area * c.servDay * daysPerMonth;
+  let stdTotal = stdServMonth + propMonth;
+  
+  // --- 优惠价 ---
+  let polServMonth, polLabel;
+  
+  if (c.policy) {
+    if (c.policy.servDay !== undefined) {
+      // 直接指定优惠后服务费单价（西青园、津南园）
+      polServMonth = area * c.policy.servDay * daysPerMonth;
+    } else if (c.policy.rate !== undefined) {
+      // 按比例减免
+      if (c.policy.applyTo === 'all') {
+        // 天开园：房租+物业都打折
+        polServMonth = area * c.servDay * c.policy.rate * daysPerMonth;
+        propMonth = area * c.propDay * c.policy.rate * daysPerMonth;
+      } else {
+        // 碳湾园：仅房租打折，物业不变
+        polServMonth = area * c.servDay * c.policy.rate * daysPerMonth;
+        // propMonth 不变
+      }
+      polLabel = c.policy.label;
+    }
+  } else {
+    // 南开园：无政策
+    polServMonth = stdServMonth;
+  }
+  
+  let polTotal = polServMonth + propMonth;
+  let polDaily = polTotal / daysPerMonth;
+  
+  // 显示：优惠价为主
+  document.getElementById('calcServFee').textContent = fmt(polServMonth) + '/月';
+  document.getElementById('calcPropFee').textContent = fmt(propMonth) + '/月';
+  document.getElementById('calcTotalLabel').textContent = c.policy ? '预估月费（优惠后）' : '预估月费合计';
+  document.getElementById('calcTotal').textContent = fmt(polTotal) + '/月';
+  document.getElementById('calcDaily').innerHTML = '折合约 <b>¥' + polDaily.toFixed(1) + '/天</b>';
+  document.getElementById('calcYearTotal').textContent = fmt(polTotal * 12) + '/年';
+  
+  // 标准价参考（仅当有政策且与优惠价不同时显示）
+  if (c.policy && Math.abs(stdTotal - polTotal) > 1) {
+    let stdDaily = stdTotal / daysPerMonth;
+    stdEl.innerHTML = '标准价参考 <b>' + fmt(stdTotal) + '/月</b>（约¥' + stdDaily.toFixed(1) + '/天）';
+    stdEl.style.display = 'block';
+  }
+  
+  resultEl.classList.add('show');
+  
+  // 政策说明
+  if (c.policy && c.policy.note) {
+    tipEl.innerHTML = '&#128220; ' + c.policy.note;
+    tipEl.style.display = 'block';
+  }
+  
+  // 更新快捷面积按钮选中状态
+  document.querySelectorAll('#calcQuickBtns .calc-quick-chip').forEach(chip => {
+    chip.classList.toggle('active', parseInt(chip.textContent) === area);
+  });
+}
+
+// ===== 视频Blob加载（解决移动端Range请求不支持的问题）=====
+const aptVideoCache = {};
+function playAptVideo(wrapper) {
+  const video = wrapper.querySelector('.apt-video-el');
+  const overlay = wrapper.querySelector('.apt-play-overlay');
+  const playBtn = wrapper.querySelector('.apt-play-btn');
+  const playText = wrapper.querySelector('.apt-play-text');
+  const loadingEl = wrapper.querySelector('.apt-loading');
+  const progressEl = wrapper.querySelector('.apt-progress');
+  const src = wrapper.dataset.src;
+
+  // Already loaded
+  if (aptVideoCache[src]) {
+    video.src = aptVideoCache[src];
+    video.style.display = 'block';
+    overlay.style.display = 'none';
+    video.play().catch(() => {});
+    return;
+  }
+
+  // Show loading
+  playBtn.style.display = 'none';
+  playText.style.display = 'none';
+  loadingEl.style.display = 'block';
+
+  // Fetch as blob
+  const xhr = new XMLHttpRequest();
+  xhr.open('GET', src, true);
+  xhr.responseType = 'blob';
+
+  xhr.onprogress = function(e) {
+    if (e.lengthComputable) {
+      const pct = Math.round((e.loaded / e.total) * 100);
+      progressEl.textContent = '加载中 ' + pct + '%...';
+    } else {
+      const loaded = (e.loaded / 1024 / 1024).toFixed(1);
+      progressEl.textContent = '已加载 ' + loaded + ' MB...';
+    }
+  };
+
+  xhr.onload = function() {
+    if (xhr.status === 200) {
+      const blobUrl = URL.createObjectURL(xhr.response);
+      aptVideoCache[src] = blobUrl;
+      video.src = blobUrl;
+      video.style.display = 'block';
+      overlay.style.display = 'none';
+      video.play().catch(() => {});
+    } else {
+      progressEl.textContent = '加载失败，请点击下方下载链接';
+    }
+  };
+
+  xhr.onerror = function() {
+    progressEl.textContent = '加载失败，请点击下方下载链接';
+  };
+
+  xhr.send();
+}
+
+// ===== Tab切换 =====
+function switchTab(idx) {
+  document.getElementById('contactModal').classList.remove('show');
+  document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active'));
+  const ids = ['page-park-tab', 'page-list', 'page-home', 'page-policy', 'page-fee', 'page-detail'];
+  if (idx < ids.length) document.getElementById(ids[idx]).classList.add('active');
+  document.querySelectorAll('.tab-item').forEach((t, i) => t.classList.toggle('active', i === idx));
+  currentTab = idx;
+  pageStack = [];
+  document.getElementById('backBtn').style.display = 'none';
+  const titles = ['园区详情', '全部房源', '天大科技园', '政策扶持', '费用对比'];
+  document.getElementById('topTitle').textContent = titles[idx] || '天大科技园';
+  if (idx === 1) renderAllHouseList();
+  if (idx === 0) renderParkTabCards();
+  window.scrollTo(0, 0);
+}
+
+function goBack() {
+  if (pageStack.length > 0) {
+    const prev = pageStack.pop();
+    // 从房源详情返回 → 优先回到公园详情页
+    if (prev && prev.backToPark) {
+      openParkDetail(prev.backToPark, true);
+      return;
+    }
+    if (prev && typeof prev.tab === 'number' && prev.tab >= 0) {
+      switchTab(prev.tab);
+    } else {
+      switchTab(0);
+    }
+  } else {
+    switchTab(0);
+  }
+}
+
+function filterParks(val, el) {
+  parkFilter = val;
+  document.querySelectorAll('#parkFilterScroll .park-filter-chip').forEach(c => c.classList.remove('active'));
+  if (el) el.classList.add('active');
+  renderParkCards();
+}
+
+function filterHouseByPark(val, el) {
+  listParkFilter = val;
+  document.querySelectorAll('#listFilterBar .park-filter-chip').forEach(c => c.classList.remove('active'));
+  if (el) el.classList.add('active');
+  renderAllHouseList();
+}
+
+function filterParkTab(val, el) {
+  parkTabFilter = val;
+  document.querySelectorAll('#parkTabFilterScroll .park-filter-chip').forEach(c => c.classList.remove('active'));
+  if (el) el.classList.add('active');
+  renderParkTabCards();
+}
+
+function renderParkTabCards() {
+  const el = document.getElementById('parkTabCards');
+  let list = parks;
+  if (parkTabFilter !== 'all') list = parks.filter(p => p.id === parkTabFilter);
+  el.innerHTML = list.map(p => {
+    const cnt = houses.filter(h => h.parkId === p.id && (h.status === '可租' || h.status === '即将可租' || h.status === '即将交付')).length;
+    return `
+    <div class="park-card" onclick="openParkDetail('${p.id}')">
+      <div class="park-card-header" style="background:linear-gradient(${p.gradient})">
+        <span class="park-name">${p.name}</span>
+      </div>
+      <div class="park-card-body">
+        <div class="park-card-desc">${p.desc.substring(0,80)}...</div>
+        <div class="park-card-meta">
+          <span class="park-meta-item">&#128205; ${p.loc.substring(0,15)}...</span>
+        </div>
+        ${p.requirements ? `<div class="park-card-req"><b>入驻要求：</b>${p.requirements}</div>` : ''}
+      </div>
+      <div class="park-card-footer">
+        <div class="park-card-tags">${p.highlights.slice(0,3).map(h=>`<span class="park-card-tag">${h}</span>`).join('')}</div>
+        <span class="park-card-count">${cnt}套房源 &rsaquo;</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filterHouseList() { renderAllHouseList(); }
+
+function doHomeSearch() {
+  switchTab(1);
+  const kw = document.getElementById('homeSearch')?.value?.trim() || '';
+  if (kw) {
+    setTimeout(() => {
+      const inp = document.getElementById('listSearch');
+      if (inp) { inp.value = kw; filterHouseList(); }
+    }, 100);
+  }
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show';
+  setTimeout(() => { t.className = 'toast'; }, 2600);
+}
+
+function init() {
+  renderHotHouses();
+  renderAllHouseList();
+  renderParkTabCards();
+}
+init();
+</script>
+<script>
+// 注册 Service Worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(function(){});
+}
+</script>
+<div class="lb-overlay" id="lb-overlay" onclick="closeLightbox()">
+  <button class="lb-close" onclick="closeLightbox()">&times;</button>
+  <button class="lb-prev" id="lb-prev" onclick="event.stopPropagation();navLightbox(-1)">&lsaquo;</button>
+  <img class="lb-img" id="lb-img" src="" alt="">
+  <div class="lb-cap" id="lb-cap"></div>
+  <button class="lb-next" id="lb-next" onclick="event.stopPropagation();navLightbox(1)">&rsaquo;</button>
+</div>
+
+<!-- PDF预览弹窗 -->
+<div id="pdfViewerOverlay">
+  <div id="pdfViewerHeader">
+    <h3 id="pdfViewerTitle"></h3>
+    <div class="pdf-header-btns">
+      <a id="pdfDlBtn" class="btn-dl" href="#" download>⬇ 下载</a>
+      <button class="btn-close" onclick="closePdfViewer()">✕ 关闭</button>
+    </div>
+  </div>
+  <iframe id="pdfViewerFrame" src="" allowfullscreen></iframe>
+</div>
+
+<script>
+function openPdfViewer(pdfUrl, title) {
+  var overlay = document.getElementById('pdfViewerOverlay');
+  var frame = document.getElementById('pdfViewerFrame');
+  var titleEl = document.getElementById('pdfViewerTitle');
+  var dlBtn = document.getElementById('pdfDlBtn');
+  titleEl.textContent = title || 'PDF文件';
+  dlBtn.href = pdfUrl;
+  dlBtn.download = (pdfUrl.split('/').pop()) || 'document.pdf';
+  // 移动端用Google Docs Viewer，桌面端直接嵌入
+  var isMobile = /iPhone|iPad|Android/i.test(navigator.userAgent);
+  if (isMobile) {
+    var absUrl = new URL(pdfUrl, window.location.href).href;
+    frame.src = 'https://docs.google.com/gview?embedded=true&url=' + encodeURIComponent(absUrl);
+  } else {
+    frame.src = pdfUrl;
+  }
+  overlay.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+function closePdfViewer() {
+  var overlay = document.getElementById('pdfViewerOverlay');
+  var frame = document.getElementById('pdfViewerFrame');
+  overlay.classList.remove('active');
+  frame.src = '';
+  document.body.style.overflow = '';
+}
+</script>
+</body>
+</html>
