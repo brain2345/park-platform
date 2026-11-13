@@ -1445,7 +1445,8 @@ function closeWxOpenTip() {
   </div>
   <!-- 考核测算器（仅碳湾园） -->
   <div class="calc-card" id="sg-calc-fee" style="display:none;border-left:3px solid #1565c0;background:linear-gradient(135deg,#f0f7ff 0%,#ffffff 100%)">
-    <div class="calc-title" style="color:#1565c0">&#127919; 考核测算器</div>
+    <div class="calc-title" style="color:#1565c0;cursor:pointer;display:flex;justify-content:space-between;align-items:center" onclick="toggleSgCalcFee()"><span>&#127919; 考核测算器 <span style="font-size:10px;font-weight:400;color:#888">（硕果计划 · 点击展开）</span></span><span id="sg-calc-fee-arrow" style="font-size:14px;transition:transform .2s">&#9662;</span></div>
+    <div id="sg-calc-fee-body" style="display:none">
     <div style="font-size:11px;color:#666;line-height:1.8;margin-bottom:10px">硕果计划（成果转化类，<b>须先申报并通过评审</b>）：房租分两部分——第一部分（减免部分）按年减免：第1年免<b>80%</b>、第2年免<b>70%</b>、第3年免<b>50%</b>，未通过按原价全额；第二部分按第1年20%/第2年30%/第3年50%预缴，<b>纳入年度考核</b>：优秀（≥90分）全返、良好（80-90分）返80%、合格（60-80分）返50%、不合格（&lt;60分）不返。只免房租不免物业费，面积上限1000㎡，超出按原价全额缴纳。</div>
     <!-- 面积输入 -->
     <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
@@ -1519,6 +1520,7 @@ function closeWxOpenTip() {
           <div style="font-size:16px;font-weight:700;color:#616161;margin-top:2px"><span id="sgc-fee-fail">0</span> 元</div>
         </div>
       </div>
+    </div>
     </div>
   </div>
 </div>
@@ -4059,6 +4061,18 @@ function closeContact(e) {
 }
 
 // ===== 费用计算器 =====
+function toggleSgCalcFee() {
+  var body = document.getElementById('sg-calc-fee-body');
+  var arrow = document.getElementById('sg-calc-fee-arrow');
+  if (!body) return;
+  var show = body.style.display !== 'block';
+  body.style.display = show ? 'block' : 'none';
+  if (arrow) arrow.innerHTML = show ? '&#9652;' : '&#9662;';
+  if (show) {
+    if (typeof renderSgIndicatorsFee === 'function') renderSgIndicatorsFee();
+    setTimeout(function(){ if (typeof updateShuoguoFee === 'function') updateShuoguoFee(); }, 0);
+  }
+}
 function setCalcArea(area) {
   const input = document.getElementById('calcArea');
   input.value = area;
@@ -4077,24 +4091,27 @@ function calcFee() {
   const areaRow = document.getElementById('calcAreaRow');
   const quickRow = document.getElementById('calcQuickRow');
 
-  // 碳湾园隐藏面积/楼层选择（下面有考核测算器）
+  // 碳湾园恢复普通计算器（2026-11-13 孙工确认：显示面积/楼层，按原价计算）
   if (parkId === 'tanwan') {
-    floorRow.style.display = 'none';
-    if (areaRow) areaRow.style.display = 'none';
-    if (quickRow) quickRow.style.display = 'none';
+    floorRow.style.display = 'block';
+    if (areaRow) areaRow.style.display = 'flex';
+    if (quickRow) quickRow.style.display = 'flex';
   } else {
     floorRow.style.display = 'none';
     if (areaRow) areaRow.style.display = 'flex';
     if (quickRow) quickRow.style.display = 'flex';
   }
 
-  // 考核测算器显隐（仅碳湾园，先于面积检查触发）
+  // 考核测算器显隐（仅碳湾园，默认折叠，点标题展开）
   var sgCalcEl = document.getElementById('sg-calc-fee');
   if (sgCalcEl) {
     if (parkId === 'tanwan') {
       sgCalcEl.style.display = 'block';
-      if (typeof renderSgIndicatorsFee === 'function') renderSgIndicatorsFee();
-      setTimeout(function(){ if (typeof updateShuoguoFee === 'function') updateShuoguoFee(); }, 0);
+      var sgBody = document.getElementById('sg-calc-fee-body');
+      if (sgBody && sgBody.style.display === 'block') {
+        if (typeof renderSgIndicatorsFee === 'function') renderSgIndicatorsFee();
+        setTimeout(function(){ if (typeof updateShuoguoFee === 'function') updateShuoguoFee(); }, 0);
+      }
     } else {
       sgCalcEl.style.display = 'none';
     }
@@ -4125,40 +4142,24 @@ function calcFee() {
     propMonth = area * c.propMonth;
   }
   
-  // --- 碳湾园1F特殊处理：房租1.5元/天/m² + 物业0.6元/天/m² ---
-  if (isFloor1) {
-    const prop1F = area * (c.firstFloorPropDay || c.propDay) * daysPerMonth;
-    // 硕果计划：返还前实缴 = 预交房租（前1000㎡享受折扣）+ 超出部分按原价 + 全额物业
-    const capArea = Math.min(area, 1000);
-    const excessArea = Math.max(0, area - capArea);
-    const sgRate = (c.policy && c.policy.rate) || 0.2;
-    const sgPreRent = capArea * c.firstFloorServMin * sgRate * daysPerMonth;
-    // 超出1000㎡部分按2-5层原价（1.0元/天/㎡），不享受硕果计划
-    const excessRent = excessArea * c.servDay * daysPerMonth;
-    const sgPreProp = prop1F;
-    const sgPreTotal = sgPreRent + sgPreProp + excessRent;
-    const sgPreYear = sgPreTotal * 12;
-    document.getElementById('calcServFee').textContent = predictTag + fmt(sgPreRent + excessRent) + '/月';
-    document.getElementById('calcPropFee').textContent = fmt(sgPreProp) + '/月';
+  // --- 碳湾园原价（2026-11-13 孙工确认恢复普通计算器，一律按原价；硕果计划优惠见下方考核测算器） ---
+  // 首层：房租1.5元/天/m² + 物业0.6；2-5层：房租1.0元/天/m² + 物业0.6
+  if (parkId === 'tanwan') {
+    const servRate = isFloor1 ? c.firstFloorServMin : c.servDay;
+    const propRate = isFloor1 ? (c.firstFloorPropDay || c.propDay) : c.propDay;
+    const rentMonth = area * servRate * daysPerMonth;
+    const propMonthTw = area * propRate * daysPerMonth;
+    const totalTw = rentMonth + propMonthTw;
+    document.getElementById('calcServFee').textContent = fmt(rentMonth) + '/月';
+    document.getElementById('calcPropFee').textContent = fmt(propMonthTw) + '/月';
     document.getElementById('calcHeatRow').style.display = 'none';
-    document.getElementById('calcTotalLabel').textContent = predictTag + '预估月费（返还前实缴）';
-    const totalTxt = fmt(sgPreTotal);
-    document.getElementById('calcTotal').textContent = totalTxt + '/月';
-    const dailyTxt = (sgPreTotal/daysPerMonth).toFixed(0);
-    document.getElementById('calcDaily').innerHTML = predictTag + '折合约 <b>¥' + dailyTxt + '/天</b>';
-    const yearTxt = fmt(sgPreYear);
-    document.getElementById('calcYearTotal').textContent = yearTxt + '/年';
-    // 标准价参考：无硕果计划时全额（首层1.5元×1000㎡ + 2-5层1元×超出 + 物业）
-    const stdServFull = capArea * c.firstFloorServMin * daysPerMonth + excessArea * c.servDay * daysPerMonth;
-    const stdTotal = stdServFull + prop1F;
-    stdEl.innerHTML = predictTag + '标准价参考 <b>' + fmt(stdTotal) + '/月</b>（约¥' + (stdTotal/daysPerMonth).toFixed(0) + '/天，全额不享硕果计划）';
-    stdEl.style.display = 'block';
+    document.getElementById('calcTotalLabel').textContent = '预估月费（原价）';
+    document.getElementById('calcTotal').textContent = fmt(totalTw) + '/月';
+    document.getElementById('calcDaily').innerHTML = '折合约 <b>¥' + (totalTw/daysPerMonth).toFixed(0) + '/天</b>';
+    document.getElementById('calcYearTotal').textContent = fmt(totalTw * 12) + '/年';
     resultEl.classList.add('show');
-    // 政策说明
-    if (c.policy && c.policy.note) {
-      tipEl.innerHTML = '&#128220; ' + predictTag + '硕果计划成果转化类减免，' + c.policy.note;
-      tipEl.style.display = 'block';
-    }
+    tipEl.style.display = 'none';
+    stdEl.style.display = 'none';
     document.querySelectorAll('#calcQuickRow .calc-quick-chip').forEach(chip => {
       chip.classList.toggle('active', parseInt(chip.textContent) === area);
     });
