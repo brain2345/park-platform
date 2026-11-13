@@ -6566,7 +6566,7 @@ function closeDocxViewer() {
   const observer = new MutationObserver(function(mutations){
     // 隐藏费用相关元素
     document.querySelectorAll('.fee-compare, .fee-detail-card, .fee-calculator, .fee-note, .notice-section').forEach(el => el.style.display = 'none');
-    
+
     // 隐藏产业生态企业名单（含南开标签式及天开/津南/西青卡片式）
     document.querySelectorAll('.eco-companies, .eco-comp-list, .eco-comp-card, .eco-sub-title').forEach(el => el.style.display = 'none');
     
@@ -6613,6 +6613,7 @@ function closeDocxViewer() {
         }
       }
     });
+
 
     // 隐藏首页"精选房源"及详情页"房源列表"板块（含紧跟的房源列表）
     document.querySelectorAll('.section-title').forEach(el => {

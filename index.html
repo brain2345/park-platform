@@ -6546,16 +6546,12 @@ function closeDocxViewer() {
 <!-- ===== 对外展示版：动态内容脱敏 ===== -->
 <script>
 (function(){
-  // 清空房源自定义价格，避免卡片/详情页显示价格
-  if (typeof houses !== 'undefined') {
-    houses.forEach(function(h) { h.customPrice = null; });
-  }
+  // 企业版：保留房源价格
 
   // 监听DOM变化，清理动态渲染的敏感信息
   const observer = new MutationObserver(function(mutations){
-    // 隐藏费用相关元素
-    document.querySelectorAll('.fee-compare, .fee-detail-card, .fee-calculator, .fee-note, .notice-section').forEach(el => el.style.display = 'none');
-    
+    // 企业版：费用显示，仅入驻须知沿用CSS隐藏
+
     // 隐藏产业生态企业名单（含南开标签式及天开/津南/西青卡片式）
     document.querySelectorAll('.eco-companies, .eco-comp-list, .eco-comp-card, .eco-sub-title').forEach(el => el.style.display = 'none');
     
@@ -6583,25 +6579,8 @@ function closeDocxViewer() {
       if(el.textContent.includes('有意向')) el.style.display = 'none';
     });
 
-    // 隐藏政策页含具体价格的表格：租金折扣标准、服务费减免指标（西青/津南）
-    document.querySelectorAll('.indicator-title').forEach(el => {
-      if (el.textContent.includes('企业分类与租金折扣标准') || el.textContent.includes('服务费减免指标')) {
-        const card = el.closest('.indicator-card');
-        if (card) card.style.display = 'none';
-      }
-    });
+    // 企业版：租金折扣/房租政策显示
 
-    // 隐藏"房租政策"板块（含具体租金/减免金额）
-    document.querySelectorAll('.section-header').forEach(el => {
-      if (el.textContent.includes('房租政策')) {
-        el.style.display = 'none';
-        let sibling = el.nextElementSibling;
-        while (sibling && !sibling.classList.contains('section-header')) {
-          if (sibling.classList.contains('policy-card')) sibling.style.display = 'none';
-          sibling = sibling.nextElementSibling;
-        }
-      }
-    });
 
     // 隐藏首页"精选房源"及详情页"房源列表"板块（含紧跟的房源列表）
     document.querySelectorAll('.section-title').forEach(el => {
