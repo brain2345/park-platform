@@ -968,6 +968,22 @@ input[type=number] {
 }
 .admin-sec-title { font-size: 13px; font-weight: 700; color: #37474f; margin: 14px 12px 8px; }
 .admin-added-badge { background: #e3f2fd; color: #1565c0; font-size: 10px; border-radius: 4px; padding: 1px 5px; margin-left: 6px; }
+/* 管理面板顶部选项卡：标记已租 / 新增修改 */
+.admin-tabs { display: flex; gap: 8px; padding: 10px 12px 0; }
+.admin-tab {
+  flex: 1; border: 1px solid #cfd8dc; background: #fff; color: #546e7a;
+  border-radius: 10px; padding: 10px 0; font-size: 14px; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.admin-tab.on { background: #1a6fd4; border-color: #1a6fd4; color: #fff; font-weight: 700; }
+.admin-edit-link {
+  background: #e8f5e9; color: #2e7d32; border: none; border-radius: 8px;
+  padding: 6px 12px; font-size: 12px; cursor: pointer; flex-shrink: 0;
+}
+#adminCancelEdit {
+  display: none; text-align: center; font-size: 12px; color: #1a6fd4;
+  padding: 6px 0 0; cursor: pointer;
+}
 /* 管理口令弹窗（不用 prompt()：部分浏览器会静默屏蔽系统弹框，点了没反应） */
 #adminPassMask {
   position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 10000;
@@ -6335,9 +6351,12 @@ function _roomsCdnBase() {
 
 function refreshHouseViews() {
   applyRoomsOverlay();
-  renderParkCards();
-  renderHotHouses();
-  renderAllHouseList();
+  // 逐个容错：某些容器的 DOM 是按 Tab 懒加载的，不存在时跳过，绝不让保存操作中断
+  const safe = fn => { try { fn(); } catch (e) { console.warn('[房源管理] 刷新跳过', e.message); } };
+  if (document.getElementById('parkTabCards')) safe(renderParkTabCards);
+  else if (document.getElementById('parkCards')) safe(renderParkCards);
+  if (document.getElementById('hotHouses')) safe(renderHotHouses);
+  if (document.getElementById('allHouseList')) safe(renderAllHouseList);
   const dl = document.getElementById('detailHouseList');
   if (dl && location.hash && location.hash.length > 1) {
     const pid = location.hash.substring(1);
@@ -6359,7 +6378,9 @@ function openAdminPanel() {
   else ROOMS_OVERLAY = { rented: [], added: [] };
   applyRoomsOverlay();
   renderAdminPanelDom();
+  adminCancelEdit();
   renderAdminList();
+  adminShowTab('list');
   document.getElementById('adminPanel').classList.add('open');
 }
 
@@ -6421,10 +6442,16 @@ function renderAdminPanelDom() {
   document.body.insertAdjacentHTML('beforeend', `
   <div id="adminPanel">
     <div class="admin-head"><b>⚙ 房源管理</b><span class="admin-close" onclick="closeAdminPanel()">×</span></div>
+    <div class="admin-tabs">
+      <button id="atab-list" class="admin-tab on" onclick="adminShowTab('list')">🏷 标记已租</button>
+      <button id="atab-add" class="admin-tab" onclick="adminShowTab('add')">➕ 新增 / 修改</button>
+    </div>
     <div class="admin-body">
-      <div class="admin-chips" id="adminChips"></div>
-      <div id="adminList"></div>
-      <div class="admin-sec-title">➕ 新增房源</div>
+      <div id="adminSecList">
+        <div class="admin-chips" id="adminChips"></div>
+        <div id="adminList"></div>
+      </div>
+      <div id="adminSecAdd" style="display:none">
       <div id="adminForm">
         <div class="admin-grid2">
           <div class="admin-field"><label>园区 *</label><select id="af-parkId"><option value="">请选择</option>${parkOpts}</select></div>
@@ -6451,14 +6478,66 @@ function renderAdminPanelDom() {
           <div class="admin-imgs" id="adminImgList"></div>
           <label class="admin-img-add">＋<input type="file" hidden multiple accept="image/*" onchange="adminHandleImgs(this)"></label>
         </div>
-        <button class="admin-btn primary" style="width:100%" onclick="adminSaveNew()">保存新增</button>
+        <div id="adminCancelEdit" onclick="adminCancelEdit()">✕ 取消修改，回到新增模式</div>
+        <button class="admin-btn primary" style="width:100%" id="af-saveBtn" onclick="adminSaveNew()">保存新增</button>
+      </div>
       </div>
     </div>
     <div class="admin-foot">
       <div class="admin-foot-tip" id="adminFootTip"></div>
+      <button class="admin-btn" style="background:#e3f2fd;color:#1565c0" onclick="adminShowTab('add')">➕ 新增</button>
       <button class="admin-btn primary" onclick="adminExport()">导出发布包</button>
     </div>
   </div>`);
+}
+
+function adminShowTab(t) {
+  const list = document.getElementById('adminSecList'), add = document.getElementById('adminSecAdd');
+  const tl = document.getElementById('atab-list'), ta = document.getElementById('atab-add');
+  if (!list) return;
+  const isAdd = t === 'add';
+  list.style.display = isAdd ? 'none' : '';
+  add.style.display = isAdd ? '' : 'none';
+  tl.classList.toggle('on', !isAdd);
+  ta.classList.toggle('on', isAdd);
+  document.querySelector('.admin-body').scrollTop = 0;
+}
+
+let adminEditingId = null;
+function adminEnterEditMode(room) {
+  adminEditingId = room.id;
+  const g = id => document.getElementById(id);
+  g('af-parkId').value = room.parkId || '';
+  g('af-name').value = room.name || '';
+  g('af-building').value = room.building || '';
+  g('af-floor').value = room.floor === '—' ? '' : (room.floor || '');
+  g('af-room').value = room.room || '';
+  g('af-area').value = typeof room.area === 'number' ? room.area : '';
+  g('af-type').value = room.type || '单间';
+  g('af-condition').value = room.condition || '精装';
+  g('af-tag').value = room.tag || '写字楼';
+  g('af-customPrice').value = room.customPrice || '';
+  g('af-note').value = room.note || '';
+  adminNewImgs = room.imgs ? room.imgs.slice() : [];
+  renderAdminNewImgs();
+  g('af-saveBtn').textContent = '保存修改';
+  g('adminCancelEdit').style.display = 'block';
+  adminShowTab('add');
+}
+
+function adminCancelEdit() {
+  adminEditingId = null;
+  ['af-name', 'af-building', 'af-floor', 'af-room', 'af-area', 'af-customPrice', 'af-note'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('af-parkId').value = '';
+  adminNewImgs = null;
+  document.getElementById('adminImgList').innerHTML = '';
+  document.getElementById('af-saveBtn').textContent = '保存新增';
+  document.getElementById('adminCancelEdit').style.display = 'none';
+}
+
+function adminEditAdded(id) {
+  const room = ROOMS_OVERLAY.added.find(a => a.id === id);
+  if (room) adminEnterEditMode(room);
 }
 
 function renderAdminChips() {
@@ -6480,7 +6559,8 @@ function renderAdminList() {
     const pn = (parks.find(p => p.id === h.parkId) || {}).name || h.parkId;
     const areaTxt = typeof h.area === 'number' ? h.area + '㎡' : '';
     const btn = isAdded
-      ? `<button class="admin-btn remove" onclick="adminRemoveAdded(${h.id})">移除</button>`
+      ? `<button class="admin-edit-link" onclick="adminEditAdded(${h.id})">编辑</button>
+         <button class="admin-btn remove" onclick="adminRemoveAdded(${h.id})">移除</button>`
       : (isRented
         ? `<button class="admin-btn restore" onclick="adminToggleRented(${h.id})">恢复在租</button>`
         : `<button class="admin-btn rent" onclick="adminToggleRented(${h.id})">标记已租</button>`);
@@ -6557,8 +6637,11 @@ let adminNewImgs = null;
 function renderAdminNewImgs() {
   const el = document.getElementById('adminImgList');
   if (!el) return;
-  el.innerHTML = (adminNewImgs || []).map((s, i) =>
-    `<img src="${s}" onclick="adminDelImg(${i})" title="点击删除">`).join('');
+  const cdn = _roomsCdnBase();
+  el.innerHTML = (adminNewImgs || []).map((s, i) => {
+    const src = (s.indexOf('data:') !== 0 && s.indexOf('http') !== 0 && cdn) ? cdn + s : s;
+    return `<img src="${src}" onclick="adminDelImg(${i})" title="点击删除">`;
+  }).join('');
 }
 
 function adminDelImg(i) {
@@ -6571,6 +6654,34 @@ function adminSaveNew() {
   const parkId = g('af-parkId'), name = g('af-name');
   if (!parkId || !name) { alert('园区和房源名称必填'); return; }
   const area = parseFloat(g('af-area'));
+  if (adminEditingId !== null) {
+    // ===== 修改模式：更新已有新增房源 =====
+    const room = ROOMS_OVERLAY.added.find(a => a.id === adminEditingId);
+    if (!room) { alert('没找到要修改的房源'); return; }
+    room.parkId = parkId; room.name = name;
+    room.building = g('af-building') || room.building;
+    room.area = isNaN(area) ? room.area : area;
+    room.floor = g('af-floor') || room.floor;
+    room.room = g('af-room') || room.room;
+    room.type = g('af-type'); room.tag = g('af-tag'); room.condition = g('af-condition');
+    room.note = g('af-note'); room.customPrice = g('af-customPrice');
+    if (adminNewImgs && adminNewImgs.length) room.imgs = adminNewImgs.slice();
+    adminEditingId = null;
+    adminNewImgs = null;
+    saveRoomsDraft();
+    applyRoomsOverlay();
+    refreshHouseViews();
+    renderAdminList();
+    // 清空表单并回到新增模式
+    ['af-name', 'af-building', 'af-floor', 'af-room', 'af-area', 'af-customPrice', 'af-note'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('af-parkId').value = '';
+    document.getElementById('adminImgList').innerHTML = '';
+    document.getElementById('af-saveBtn').textContent = '保存新增';
+    document.getElementById('adminCancelEdit').style.display = 'none';
+    alert('修改已保存 ✓ 当前页面立即生效；要让线上访客看到，请点底部「导出发布包」→ 双击 publish_rooms.bat');
+    return;
+  }
+  // ===== 新增模式 =====
   const maxId = Math.max.apply(null, houses.map(h => h.id).concat([0]));
   const room = {
     id: maxId + 1, parkId: parkId, name: name,
