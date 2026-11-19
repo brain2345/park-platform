@@ -906,6 +906,68 @@ input[type=number] {
   position: absolute; top: 6px; right: 12px; font-size: 20px; color: #ccc;
   cursor: pointer; line-height: 1;
 }
+/* ===== 房源管理面板（管理员） ===== */
+#adminEntry {
+  float: right; background: #fff; border: 1px solid #1a6fd4; color: #1a6fd4;
+  border-radius: 12px; padding: 2px 10px; font-size: 12px; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+#adminPanel {
+  position: fixed; inset: 0; background: #f0f4f8; z-index: 9999;
+  display: none; flex-direction: column;
+}
+#adminPanel.open { display: flex; }
+.admin-head {
+  background: #1a3a6b; color: #fff; padding: 12px 16px; display: flex;
+  align-items: center; justify-content: space-between; flex-shrink: 0;
+}
+.admin-head b { font-size: 16px; }
+.admin-close { font-size: 22px; cursor: pointer; line-height: 1; }
+.admin-body { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 70px; }
+.admin-chips { display: flex; gap: 6px; padding: 10px 12px; flex-wrap: wrap; }
+.admin-chip {
+  padding: 4px 12px; border-radius: 14px; font-size: 12px; background: #fff;
+  border: 1px solid #cfd8dc; color: #546e7a; cursor: pointer;
+}
+.admin-chip.on { background: #1a6fd4; border-color: #1a6fd4; color: #fff; }
+.admin-row {
+  background: #fff; border-radius: 10px; margin: 0 12px 8px; padding: 10px 12px;
+  display: flex; align-items: center; gap: 10px; box-shadow: 0 1px 3px rgba(0,0,0,.06);
+}
+.admin-row-info { flex: 1; min-width: 0; }
+.admin-row-name { font-size: 14px; font-weight: 700; color: #263238; }
+.admin-row-sub { font-size: 11px; color: #90a4ae; margin-top: 2px; }
+.admin-btn {
+  border: none; border-radius: 8px; padding: 6px 12px; font-size: 12px;
+  cursor: pointer; flex-shrink: 0; -webkit-tap-highlight-color: transparent;
+}
+.admin-btn.rent { background: #fff3e0; color: #e65100; }
+.admin-btn.restore { background: #e8f5e9; color: #2e7d32; }
+.admin-btn.remove { background: #ffebee; color: #c62828; }
+.admin-btn.primary { background: #1a6fd4; color: #fff; font-size: 14px; padding: 10px 16px; }
+.admin-foot {
+  position: absolute; bottom: 0; left: 0; right: 0; background: #fff;
+  padding: 10px 14px; box-shadow: 0 -2px 8px rgba(0,0,0,.08); display: flex;
+  gap: 10px; align-items: center;
+}
+.admin-foot-tip { flex: 1; font-size: 11px; color: #90a4ae; }
+#adminForm { background: #fff; margin: 4px 12px 12px; border-radius: 10px; padding: 12px; }
+.admin-field { margin-bottom: 8px; }
+.admin-field label { display: block; font-size: 11px; color: #78909c; margin-bottom: 3px; }
+.admin-field input, .admin-field select, .admin-field textarea {
+  width: 100%; box-sizing: border-box; border: 1px solid #cfd8dc; border-radius: 8px;
+  padding: 8px 10px; font-size: 13px; color: #263238; background: #fafafa;
+}
+.admin-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.admin-imgs { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+.admin-imgs img { width: 64px; height: 64px; object-fit: cover; border-radius: 8px; }
+.admin-img-add {
+  width: 64px; height: 64px; border: 1px dashed #90a4ae; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center; font-size: 24px;
+  color: #90a4ae; cursor: pointer;
+}
+.admin-sec-title { font-size: 13px; font-weight: 700; color: #37474f; margin: 14px 12px 8px; }
+.admin-added-badge { background: #e3f2fd; color: #1565c0; font-size: 10px; border-radius: 4px; padding: 1px 5px; margin-left: 6px; }
 </style>
 
 <!-- ===== 对外展示版：隐藏敏感信息（内部脱敏版--gov） ===== -->
@@ -915,6 +977,8 @@ input[type=number] {
 /* 产业生态-入驻企业名单（含卡片式列表） */
 .eco-companies, .eco-comp-list, .eco-comp-card { display: none !important; }
 .eco-sub-title { display: none !important; }
+/* 房源管理按钮（管理员功能不对访客展示，隐藏入口=连点5次"房源列表"标题） */
+#adminEntry { display: none !important; }
 /* 楼层图图例中的"意向入驻"/"确定入驻"文字 */
 .tw-legend-item:nth-child(2), .tw-legend-item:nth-child(3) { display: none !important; }
 /* 费用一览表 */
@@ -1319,7 +1383,7 @@ function closeWxOpenTip() {
     <div class="park-filter-chip" onclick="filterHouseByPark('tanwan',this)">碳湾园</div>
     <div class="park-filter-chip" onclick="filterHouseByPark('nankai',this)">南开园</div>
   </div>
-  <div style="padding:6px 16px;font-size:12px;color:#999" id="houseCount">共 <b>78</b> 套房源</div>
+  <div style="padding:6px 16px;font-size:12px;color:#999" id="houseCount">共 <b>78</b> 套房源 <button id="adminEntry" onclick="openAdminPanel()">⚙ 管理房源</button></div>
   <div class="house-list-stats" id="houseListStats"></div>
   <div id="policyMatchBanner" style="display:none;padding:10px 14px;margin:0 16px 8px;background:#e8f0fe;border-radius:10px;cursor:pointer" onclick="goToPolicySearch()">
     <span style="color:#1565c0;font-size:13px;font-weight:600">&#128221; 找到 <b id="policyMatchCount">0</b> 条相关政策，点击查看 →</span>
@@ -2234,6 +2298,51 @@ const houses = [
   { id:83, parkId:'nankai', name:'26F孵化间', building:'启航大厦', area:30, floor:'26F', room:'孵化间', type:'孵化间', tag:'孵化器', condition:'精装', status:'可租', capacity:'1-4人', desc:'26层孵化区，独立办公空间，精装修拎包入驻', imgs:['https://cdn.jsdelivr.net/gh/brain2345/park-platform@main/images/nankai/office_26f_01.jpg'] }
 ];
 
+// ===== 房源自助管理（2026-11-19）：标记已租/恢复在租、新增房源 =====
+// 数据模型：HOUSES_BASE = 代码里的原始房源（只读基准）
+//           ROOMS_OVERLAY = 管理员的改动 { rented:[房源id], added:[新房源对象] }
+//           houses = 访客看到的最终列表 = BASE - rented + added（每次apply全量重建）
+// 线上发布：管理员导出 rooms_publish.zip → publish_rooms.bat 推 GitHub（rooms_overlay.json）
+// 访客端启动时 fetch rooms_overlay.json 应用改动；本地用 localStorage 草稿实时预览
+const HOUSES_BASE = houses.slice();
+let ROOMS_OVERLAY = { rented: [], added: [] };
+let ROOMS_OVERLAY_REMOTE = null;
+let ROOMS_OVERLAY_READY = false;
+
+function applyRoomsOverlay() {
+  houses.length = 0;
+  HOUSES_BASE.forEach(h => houses.push(h));
+  const rented = ROOMS_OVERLAY.rented || [];
+  for (let i = houses.length - 1; i >= 0; i--) {
+    if (rented.indexOf(houses[i].id) >= 0) houses.splice(i, 1);
+  }
+  const _cdn = _roomsCdnBase();
+  (ROOMS_OVERLAY.added || []).forEach(a => {
+    const c = Object.assign({}, a);
+    if (_cdn && c.imgs) c.imgs = c.imgs.map(s => s.indexOf('data:') === 0 ? s : _cdn + s);
+    houses.push(c);
+  });
+}
+
+function saveRoomsDraft() {
+  try {
+    localStorage.setItem('roomsAdminDraft', JSON.stringify(ROOMS_OVERLAY));
+  } catch (e) {
+    alert('本地存储空间不足（图片太多）：请尽快点「导出发布包」把已传的图发布出去，或删掉部分新增房源再试。');
+  }
+}
+
+function loadRoomsDraft() {
+  try {
+    const raw = localStorage.getItem('roomsAdminDraft');
+    if (raw) {
+      const d = JSON.parse(raw);
+      if (d && (d.rented || d.added)) return d;
+    }
+  } catch (e) {}
+  return null;
+}
+
 // ===== 园区外观图映射（渲染时自动预置到每个房源图前）=====
 var parkExteriorImgs = {
   'tanwan': ['https://cdn.jsdelivr.net/gh/brain2345/park-platform@main/images/tanwan/exterior.jpg', 'https://cdn.jsdelivr.net/gh/brain2345/park-platform@main/images/tanwan/exterior_building1.jpg', 'https://cdn.jsdelivr.net/gh/brain2345/park-platform@main/images/tanwan/interior.jpg'],
@@ -2499,7 +2608,7 @@ function renderAllHouseList() {
     `;
   }
 
-  document.getElementById('houseCount').innerHTML = `共 <b>${list.length}</b> 套房源`;
+  document.getElementById('houseCount').innerHTML = `共 <b>${list.length}</b> 套房源 <button id="adminEntry" onclick="openAdminPanel()">⚙ 管理房源</button>`;
   if (list.length === 0) {
     el.innerHTML = '<div class="empty"><div class="empty-icon">&#128269;</div><div>暂无符合条件的房源</div><div style="font-size:12px;margin-top:4px">试试换个关键词或园区</div></div>';
     return;
@@ -6193,7 +6302,308 @@ function updateShuoguoFee() {
   }
 }
 
-init();
+// ===== 房源管理面板（管理员功能） =====
+const ADMIN_PASS = '8888'; // ← 管理口令，想改就改这里
+const ROOMS_IMG_DIR = 'imag' + 'es/custom/'; // 拆开写：避免 gen_public 把这里的 'https://cdn.jsdelivr.net/gh/brain2345/park-platform@main/images/' 也当图片路径替换掉
+let adminParkFilter = 'all';
+
+function _roomsCdnBase() {
+  // github.io 线上：overlay 里的相对图片路径自动加 CDN 前缀（失败由 head 里的回退监听兜底）
+  return location.hostname.indexOf('github.io') >= 0
+    ? 'https://cdn.jsdelivr.net/gh/brain2345/park-platform@main/' : '';
+}
+
+function refreshHouseViews() {
+  applyRoomsOverlay();
+  renderParkCards();
+  renderHotHouses();
+  renderAllHouseList();
+  const dl = document.getElementById('detailHouseList');
+  if (dl && location.hash && location.hash.length > 1) {
+    const pid = location.hash.substring(1);
+    dl.innerHTML = houses.filter(h => h.parkId === pid).map(h => renderHouseCard(h)).join('');
+  }
+}
+
+function openAdminPanel() {
+  if (sessionStorage.getItem('adminOk') !== '1') {
+    const p = prompt('请输入管理口令：');
+    if (p === null) return;
+    if (p !== ADMIN_PASS) { alert('口令不对'); return; }
+    sessionStorage.setItem('adminOk', '1');
+  }
+  // 草稿优先：本地没改过就用线上已发布的 overlay
+  const draft = loadRoomsDraft();
+  if (draft) ROOMS_OVERLAY = draft;
+  else if (ROOMS_OVERLAY_REMOTE) ROOMS_OVERLAY = JSON.parse(JSON.stringify(ROOMS_OVERLAY_REMOTE));
+  else ROOMS_OVERLAY = { rented: [], added: [] };
+  applyRoomsOverlay();
+  renderAdminPanelDom();
+  renderAdminList();
+  document.getElementById('adminPanel').classList.add('open');
+}
+
+function closeAdminPanel() {
+  document.getElementById('adminPanel').classList.remove('open');
+}
+
+function renderAdminPanelDom() {
+  if (document.getElementById('adminPanel')) return;
+  const parkOpts = parks.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+  document.body.insertAdjacentHTML('beforeend', `
+  <div id="adminPanel">
+    <div class="admin-head"><b>⚙ 房源管理</b><span class="admin-close" onclick="closeAdminPanel()">×</span></div>
+    <div class="admin-body">
+      <div class="admin-chips" id="adminChips"></div>
+      <div id="adminList"></div>
+      <div class="admin-sec-title">➕ 新增房源</div>
+      <div id="adminForm">
+        <div class="admin-grid2">
+          <div class="admin-field"><label>园区 *</label><select id="af-parkId"><option value="">请选择</option>${parkOpts}</select></div>
+          <div class="admin-field"><label>房源名称 *</label><input id="af-name" placeholder="如：704-2"></div>
+        </div>
+        <div class="admin-grid2">
+          <div class="admin-field"><label>楼栋</label><input id="af-building" placeholder="如：海棠科创园"></div>
+          <div class="admin-field"><label>楼层</label><input id="af-floor" placeholder="如：7F"></div>
+        </div>
+        <div class="admin-grid2">
+          <div class="admin-field"><label>房号</label><input id="af-room" placeholder="如：04-2室"></div>
+          <div class="admin-field"><label>面积（㎡，数字）</label><input id="af-area" type="number" inputmode="decimal" placeholder="如 84.96"></div>
+        </div>
+        <div class="admin-grid2">
+          <div class="admin-field"><label>类型</label><select id="af-type"><option>单间</option><option>整层</option><option>分割间</option><option>孵化间</option></select></div>
+          <div class="admin-field"><label>装修</label><select id="af-condition"><option>精装</option><option>毛坯</option></select></div>
+        </div>
+        <div class="admin-grid2">
+          <div class="admin-field"><label>特色标签</label><select id="af-tag"><option>写字楼</option><option>研发楼</option><option>孵化器</option></select></div>
+          <div class="admin-field"><label>价格展示</label><input id="af-customPrice" placeholder="如：1.2元/㎡/天 或 面议"></div>
+        </div>
+        <div class="admin-field"><label>备注</label><textarea id="af-note" rows="2" placeholder="如：带隔断，朝南，可注册"></textarea></div>
+        <div class="admin-field"><label>房间照片（可多选，自动压缩）</label>
+          <div class="admin-imgs" id="adminImgList"></div>
+          <label class="admin-img-add">＋<input type="file" hidden multiple accept="image/*" onchange="adminHandleImgs(this)"></label>
+        </div>
+        <button class="admin-btn primary" style="width:100%" onclick="adminSaveNew()">保存新增</button>
+      </div>
+    </div>
+    <div class="admin-foot">
+      <div class="admin-foot-tip" id="adminFootTip"></div>
+      <button class="admin-btn primary" onclick="adminExport()">导出发布包</button>
+    </div>
+  </div>`);
+}
+
+function renderAdminChips() {
+  const chips = [['all', '全部']].concat(parks.map(p => [p.id, p.name.replace('大学科技园', '')]));
+  document.getElementById('adminChips').innerHTML = chips.map(c =>
+    `<span class="admin-chip ${adminParkFilter === c[0] ? 'on' : ''}" onclick="adminSetPark('${c[0]}')">${c[1]}</span>`).join('');
+}
+
+function adminSetPark(f) { adminParkFilter = f; renderAdminChips(); renderAdminList(); }
+
+function renderAdminList() {
+  renderAdminChips();
+  let list = HOUSES_BASE.slice().reverse().concat(ROOMS_OVERLAY.added.slice().reverse());
+  if (adminParkFilter !== 'all') list = list.filter(h => h.parkId === adminParkFilter);
+  const rented = ROOMS_OVERLAY.rented || [];
+  document.getElementById('adminList').innerHTML = list.map(h => {
+    const isAdded = ROOMS_OVERLAY.added.some(a => a.id === h.id);
+    const isRented = rented.indexOf(h.id) >= 0;
+    const pn = (parks.find(p => p.id === h.parkId) || {}).name || h.parkId;
+    const areaTxt = typeof h.area === 'number' ? h.area + '㎡' : '';
+    const btn = isAdded
+      ? `<button class="admin-btn remove" onclick="adminRemoveAdded(${h.id})">移除</button>`
+      : (isRented
+        ? `<button class="admin-btn restore" onclick="adminToggleRented(${h.id})">恢复在租</button>`
+        : `<button class="admin-btn rent" onclick="adminToggleRented(${h.id})">标记已租</button>`);
+    return `<div class="admin-row">
+      <div class="admin-row-info">
+        <div class="admin-row-name">${h.name} <span class="admin-added-badge">${isAdded ? '新增' : ''}</span></div>
+        <div class="admin-row-sub">${pn} · ${h.building || ''} · ${h.floor || ''} · ${areaTxt}</div>
+      </div>
+      <span style="font-size:11px;color:${isRented ? '#c62828' : '#2e7d32'}">${isRented ? '已租(隐藏)' : (h.status || '')}</span>
+      ${btn}
+    </div>`;
+  }).join('') || '<div style="text-align:center;color:#999;padding:30px">该园区暂无房源</div>';
+  const n = rented.length + ROOMS_OVERLAY.added.length;
+  document.getElementById('adminFootTip').textContent =
+    n > 0 ? `待发布改动：标记已租 ${rented.length} 处 · 新增 ${ROOMS_OVERLAY.added.length} 套` : '暂无改动，点按钮直接标记或新增';
+}
+
+function adminToggleRented(id) {
+  const rented = ROOMS_OVERLAY.rented || (ROOMS_OVERLAY.rented = []);
+  const i = rented.indexOf(id);
+  if (i >= 0) rented.splice(i, 1); else rented.push(id);
+  saveRoomsDraft();
+  applyRoomsOverlay();
+  refreshHouseViews();
+  renderAdminList();
+}
+
+function adminRemoveAdded(id) {
+  if (!confirm('确定移除这套新增房源？（发布后线上就看不到）')) return;
+  ROOMS_OVERLAY.added = ROOMS_OVERLAY.added.filter(a => a.id !== id);
+  saveRoomsDraft();
+  applyRoomsOverlay();
+  refreshHouseViews();
+  renderAdminList();
+}
+
+function adminCompressImage(file, cb) {
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    const img = new Image();
+    img.onload = function () {
+      const max = 1100;
+      let w = img.width, h = img.height;
+      if (Math.max(w, h) > max) { const k = max / Math.max(w, h); w = Math.round(w * k); h = Math.round(h * k); }
+      const cv = document.createElement('canvas');
+      cv.width = w; cv.height = h;
+      const ctx = cv.getContext('2d');
+      ctx.fillStyle = '#fff'; // PNG 透明底转 JPEG 防黑底
+      ctx.fillRect(0, 0, w, h);
+      ctx.drawImage(img, 0, 0, w, h);
+      cb(cv.toDataURL('image/jpeg', 0.72));
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function adminHandleImgs(input) {
+  if (!input.files || !input.files.length) return;
+  adminNewImgs = adminNewImgs || [];
+  let pending = input.files.length;
+  Array.prototype.forEach.call(input.files, function (f) {
+    adminCompressImage(f, function (dataURL) {
+      adminNewImgs.push(dataURL);
+      if (--pending === 0) {
+        renderAdminNewImgs();
+        input.value = '';
+      }
+    });
+  });
+}
+let adminNewImgs = null;
+
+function renderAdminNewImgs() {
+  const el = document.getElementById('adminImgList');
+  if (!el) return;
+  el.innerHTML = (adminNewImgs || []).map((s, i) =>
+    `<img src="${s}" onclick="adminDelImg(${i})" title="点击删除">`).join('');
+}
+
+function adminDelImg(i) {
+  adminNewImgs.splice(i, 1);
+  renderAdminNewImgs();
+}
+
+function adminSaveNew() {
+  const g = id => document.getElementById(id).value.trim();
+  const parkId = g('af-parkId'), name = g('af-name');
+  if (!parkId || !name) { alert('园区和房源名称必填'); return; }
+  const area = parseFloat(g('af-area'));
+  const maxId = Math.max.apply(null, houses.map(h => h.id).concat([0]));
+  const room = {
+    id: maxId + 1, parkId: parkId, name: name,
+    building: g('af-building') || (parks.find(p => p.id === parkId) || {}).name || '',
+    area: isNaN(area) ? '待确认' : area,
+    floor: g('af-floor') || '—', room: g('af-room') || name,
+    type: g('af-type'), tag: g('af-tag'), condition: g('af-condition'),
+    status: '可租', note: g('af-note'), customPrice: g('af-customPrice')
+  };
+  if (adminNewImgs && adminNewImgs.length) room.imgs = adminNewImgs.slice();
+  ROOMS_OVERLAY.added.push(room);
+  adminNewImgs = null;
+  saveRoomsDraft();
+  applyRoomsOverlay();
+  refreshHouseViews();
+  renderAdminList();
+  // 清空表单
+  ['af-name', 'af-building', 'af-floor', 'af-room', 'af-area', 'af-customPrice', 'af-note'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('af-parkId').value = '';
+  document.getElementById('adminImgList').innerHTML = '';
+  alert('已保存 ✓ 当前页面立即生效；要让线上访客看到，请点底部「导出发布包」→ 双击 publish_rooms.bat');
+}
+
+function adminLoadJSZip(cb) {
+  if (window.JSZip) return cb();
+  const s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js';
+  s.onload = cb;
+  s.onerror = function () { alert('压缩组件加载失败（网络问题），请稍后再试'); };
+  document.head.appendChild(s);
+}
+
+function adminExport() {
+  const rented = ROOMS_OVERLAY.rented || [], added = ROOMS_OVERLAY.added || [];
+  if (!rented.length && !added.length) { alert('还没有任何改动，先标记已租或新增房源'); return; }
+  adminLoadJSZip(function () {
+    const overlay = JSON.parse(JSON.stringify(ROOMS_OVERLAY));
+    const imgFiles = [];
+    const ts = Date.now();
+    overlay.added.forEach(function (a, ai) {
+      (a.imgs || []).forEach(function (s, ii) {
+        if (s.indexOf('data:image') === 0) {
+          const fname = ROOMS_IMG_DIR + ts + '_' + ai + '_' + ii + '.jpg';
+          imgFiles.push([fname, s.split(',')[1]]);
+          a.imgs[ii] = fname;
+        }
+      });
+      if (!a.imgs || !a.imgs.length) delete a.imgs;
+    });
+    overlay.version = (overlay.version || 0) + 1;
+    overlay.updated = new Date().toLocaleString('zh-CN', { hour12: false });
+    const zip = new JSZip();
+    zip.file('rooms_overlay.json', JSON.stringify(overlay));
+    imgFiles.forEach(f => zip.file(f[0], f[1], { base64: true }));
+    zip.generateAsync({ type: 'blob' }).then(function (blob) {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'rooms_publish.zip';
+      a.click();
+      setTimeout(function () { URL.revokeObjectURL(a.href); }, 3000);
+      alert('发布包 rooms_publish.zip 已下载到下载目录 ✓\n\n下一步：双击 D:\\新建文件\\wb\\park-platform\\publish_rooms.bat\n（自动解压+推送 GitHub，1-2分钟线上生效）');
+    });
+  });
+}
+
+// 隐藏入口：3秒内连点园区详情页「房源列表」标题5次也能唤出管理面板（对外版按钮被隐藏时用这个）
+(function () {
+  let taps = 0, timer = null;
+  document.addEventListener('click', function (e) {
+    const t = e.target.closest && e.target.closest('.section-title');
+    if (!t || t.textContent.indexOf('房源列表') < 0) return;
+    taps++;
+    clearTimeout(timer);
+    timer = setTimeout(function () { taps = 0; }, 1500);
+    if (taps >= 5) { taps = 0; openAdminPanel(); }
+  });
+})();
+
+// 启动流程：先拉 rooms_overlay.json（管理员标记已租/新增的房源），拿到或失败后进 init
+// 4秒兜底：网络异常时不至于白屏；拉到后 applyRoomsOverlay 保证统计/列表/AI推荐口径一致
+(function () {
+  let booted = false;
+  function go() {
+    if (booted) return;
+    booted = true;
+    try { init(); } catch (e) { console.error(e); alert('页面加载出错：' + e.message); }
+  }
+  try {
+    fetch('rooms_overlay.json', { cache: 'no-store' })
+      .then(r => r.ok ? r.json() : null)
+      .then(o => {
+        if (o && o.rented) {
+          ROOMS_OVERLAY_REMOTE = o;
+          if (!loadRoomsDraft()) { ROOMS_OVERLAY = o; applyRoomsOverlay(); }
+        }
+        go();
+      })
+      .catch(() => go());
+  } catch (e) { go(); }
+  setTimeout(go, 4000);
+})();
 </script>
 <script>
 // 注册 Service Worker
