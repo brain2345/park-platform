@@ -968,6 +968,26 @@ input[type=number] {
 }
 .admin-sec-title { font-size: 13px; font-weight: 700; color: #37474f; margin: 14px 12px 8px; }
 .admin-added-badge { background: #e3f2fd; color: #1565c0; font-size: 10px; border-radius: 4px; padding: 1px 5px; margin-left: 6px; }
+/* 管理口令弹窗（不用 prompt()：部分浏览器会静默屏蔽系统弹框，点了没反应） */
+#adminPassMask {
+  position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 10000;
+  display: none; align-items: center; justify-content: center;
+}
+#adminPassMask.open { display: flex; }
+#adminPassBox {
+  background: #fff; border-radius: 14px; width: 300px; max-width: 86vw; padding: 20px 18px;
+  box-shadow: 0 8px 30px rgba(0,0,0,.25);
+}
+#adminPassBox h3 { margin: 0 0 6px; font-size: 16px; color: #1a3a6b; }
+#adminPassBox p { margin: 0 0 12px; font-size: 12px; color: #90a4ae; }
+#adminPassInput {
+  width: 100%; box-sizing: border-box; border: 1px solid #cfd8dc; border-radius: 8px;
+  padding: 10px 12px; font-size: 15px; text-align: center; letter-spacing: 2px; outline: none;
+}
+#adminPassInput:focus { border-color: #1a6fd4; }
+#adminPassErr { font-size: 12px; color: #c62828; min-height: 16px; margin-top: 6px; }
+#adminPassBtns { display: flex; gap: 10px; margin-top: 8px; }
+#adminPassBtns button { flex: 1; border: none; border-radius: 8px; padding: 10px 0; font-size: 14px; cursor: pointer; }
 </style>
 
 <!-- ===== 对外展示版：隐藏敏感信息（企业版-显示费用） ===== -->
@@ -6316,10 +6336,10 @@ function refreshHouseViews() {
 
 function openAdminPanel() {
   if (sessionStorage.getItem('adminOk') !== '1') {
-    const p = prompt('请输入管理口令：');
-    if (p === null) return;
-    if (p !== ADMIN_PASS) { alert('口令不对'); return; }
-    sessionStorage.setItem('adminOk', '1');
+    adminAskPass(function (ok) {
+      if (ok) openAdminPanel();
+    });
+    return;
   }
   // 草稿优先：本地没改过就用线上已发布的 overlay
   const draft = loadRoomsDraft();
@@ -6330,6 +6350,54 @@ function openAdminPanel() {
   renderAdminPanelDom();
   renderAdminList();
   document.getElementById('adminPanel').classList.add('open');
+}
+
+// 页面内口令弹窗：不依赖 prompt()（部分浏览器/内嵌环境会静默屏蔽系统弹框）
+function adminAskPass(cb) {
+  let mask = document.getElementById('adminPassMask');
+  if (!mask) {
+    document.body.insertAdjacentHTML('beforeend', `
+      <div id="adminPassMask">
+        <div id="adminPassBox">
+          <h3>⚙ 房源管理</h3>
+          <p>请输入管理口令</p>
+          <input type="password" id="adminPassInput" maxlength="20" placeholder="口令">
+          <div id="adminPassErr"></div>
+          <div id="adminPassBtns">
+            <button style="background:#eceff1;color:#546e7a" onclick="adminPassCancel()">取消</button>
+            <button style="background:#1a6fd4;color:#fff" onclick="adminPassSubmit()">确 定</button>
+          </div>
+        </div>
+      </div>`);
+    mask = document.getElementById('adminPassMask');
+    mask.addEventListener('click', function (e) { if (e.target === mask) adminPassCancel(); });
+    document.getElementById('adminPassInput').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') adminPassSubmit();
+    });
+  }
+  adminPassCallback = cb;
+  document.getElementById('adminPassErr').textContent = '';
+  document.getElementById('adminPassInput').value = '';
+  mask.classList.add('open');
+  setTimeout(function () { document.getElementById('adminPassInput').focus(); }, 50);
+}
+let adminPassCallback = null;
+function adminPassCancel() {
+  document.getElementById('adminPassMask').classList.remove('open');
+  const cb = adminPassCallback; adminPassCallback = null;
+  if (cb) cb(false);
+}
+function adminPassSubmit() {
+  const v = document.getElementById('adminPassInput').value;
+  if (v === ADMIN_PASS) {
+    sessionStorage.setItem('adminOk', '1');
+    document.getElementById('adminPassMask').classList.remove('open');
+    const cb = adminPassCallback; adminPassCallback = null;
+    if (cb) cb(true);
+  } else {
+    document.getElementById('adminPassErr').textContent = '口令不对，请重试';
+    document.getElementById('adminPassInput').select();
+  }
 }
 
 function closeAdminPanel() {
