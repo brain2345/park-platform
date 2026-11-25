@@ -53,12 +53,6 @@
   .top-phone-bar { background: #fff; border-bottom: 1px solid #f0f0f0; padding: 8px 16px; text-align: right; position: sticky; top: 50px; z-index: 99; }
   .top-phone-bar a { color: #b83232; font-size: 13px; text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; }
   .top-phone-bar a::before { content: "\260e"; margin-right: 4px; font-size: 14px; }
-  /* ===== 微信内置浏览器打开提示（微信拦截时引导转浏览器，仅微信内显示） ===== */
-  .wx-open-tip { display: none; align-items: center; gap: 8px; padding: 10px 14px; background: #fff7e6; border-bottom: 1px solid #ffd591; font-size: 13px; line-height: 1.55; color: #874d00; position: relative; z-index: 90; }
-  .wx-open-tip .wx-tip-txt { flex: 1; }
-  .wx-open-tip .wx-tip-txt b { color: #b83232; }
-  .wx-open-tip .wx-tip-close { flex: 0 0 auto; width: 20px; height: 20px; border-radius: 50%; background: rgba(184,50,50,0.12); color: #b83232; font-size: 14px; line-height: 20px; text-align: center; cursor: pointer; font-style: normal; }
-
   .tab-bar { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: var(--appw); background: #fff; border-top: 1px solid #eee; display: flex; z-index: 200; padding-bottom: env(safe-area-inset-bottom); }
   .tab-item { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 6px 0 8px; cursor: pointer; transition: color 0.2s; }
   .tab-item .tab-icon { font-size: 20px; margin-bottom: 2px; }
@@ -330,6 +324,24 @@
   .calc-policy-tip { font-size: 11px; color: #d48806; background: #fffdf5; border-radius: 6px; padding: 6px 10px; margin-top: 8px; text-align: center; }
   .calc-standard-ref { font-size: 11px; color: #999; text-align: right; margin-top: 6px; padding-top: 6px; border-top: 1px dashed #e8e8e8; }
   .calc-standard-ref b { color: #666; }
+
+  /* 硕果计划（碳湾园）三年费用明细表：行=费用项，列=第1/2/3年 */
+  .calc-sg-result { background: #fff; border-radius: 10px; padding: 14px; margin-top: 12px; border: 1px solid #d0ddf5; animation: fadeIn .3s ease-out; }
+  .calc-sg-head { font-size: 12px; font-weight: 700; color: #1a6fd4; margin-bottom: 10px; text-align: center; }
+  .calc-sg-grid { display: grid; grid-template-columns: 1.3fr 1fr 1fr 1fr; gap: 1px; background: #d7e3f7; border: 1px solid #d0ddf5; border-radius: 8px; overflow: hidden; }
+  .calc-sg-cell { background: #fff; padding: 7px 4px; text-align: center; font-size: 11px; line-height: 1.35; }
+  .calc-sg-cell.hd { background: #eef4ff; font-weight: 700; color: #1a3a6b; font-size: 11px; }
+  .calc-sg-cell.hd .rate { display: block; font-size: 9px; color: #e65100; font-weight: 700; margin-top: 1px; }
+  .calc-sg-cell.first { text-align: left; padding-left: 9px; }
+  .calc-sg-cell.lbl { background: #f7faff; color: #555; font-weight: 600; font-size: 10px; }
+  .calc-sg-cell.lbl .sub { display: block; font-size: 9px; color: #999; font-weight: 400; margin-top: 1px; }
+  .calc-sg-cell.val { font-weight: 700; color: #333; font-size: 11px; }
+  .calc-sg-cell.val.hi { background: #eef6ff; color: #1a6fd4; font-size: 12px; font-weight: 800; }
+  .calc-sg-cell.val.hi2 { background: #fff7e6; color: #c47f00; font-size: 12px; font-weight: 800; }
+  .calc-sg-note { font-size: 10px; color: #777; line-height: 1.75; margin-top: 10px; padding: 8px 10px; background: #fffbe6; border-radius: 6px; }
+  .calc-sg-note b { color: #d48806; }
+  .calc-sg-jump { width: 100%; margin-top: 10px; padding: 9px; background: #fff; border: 1px solid #1a6fd4; border-radius: 8px; color: #1a6fd4; font-size: 12px; font-weight: 700; cursor: pointer; }
+  .calc-sg-jump:active { background: #e8f0fe; }
 
   .fee-note { background: #e8f0fe; margin: 0 16px 12px; border-radius: var(--radius); padding: 12px 14px; border: 1px solid #c5d9f5; display: flex; gap: 10px; align-items: flex-start; }
   .fee-note-icon { font-size: 18px; flex-shrink: 0; }
@@ -980,6 +992,12 @@ input[type=number] {
   background: #e8f5e9; color: #2e7d32; border: none; border-radius: 8px;
   padding: 6px 12px; font-size: 12px; cursor: pointer; flex-shrink: 0;
 }
+/* 状态下拉（2026-11-23：可租/即将退租/可租/即将交付 自己切换） */
+.admin-status-sel {
+  font-size: 11px; padding: 4px 3px; border: 1px solid #cfd8dc; border-radius: 6px;
+  background: #fff; color: #555; max-width: 92px; flex-shrink: 0;
+}
+.admin-status-sel.ovr { border-color: #f0a500; color: #8a6d00; font-weight: 700; background: #fffde7; }
 #adminCancelEdit {
   display: none; text-align: center; font-size: 12px; color: #1a6fd4;
   padding: 6px 0 0; cursor: pointer;
@@ -1182,29 +1200,6 @@ function pushVisitorInfo(purpose) {
 </script>
 <script>if('scrollRestoration' in history) history.scrollRestoration='manual'; window.scrollTo(0,0);</script>
 
-<!-- 微信内置浏览器打开提示：平台对微信 UA 有限制时，引导用户转浏览器（仅微信内显示） -->
-<div class="wx-open-tip" id="wxOpenTip">
-  <span class="wx-tip-txt">微信内打不开？点右上角 <b>「···」→「在浏览器中打开」</b> 即可正常浏览</span>
-  <span class="wx-tip-close" onclick="closeWxOpenTip()">&times;</span>
-</div>
-<script>
-// 仅在微信内置浏览器内显示本提示；浏览器/其他环境自动隐藏，不打扰正常访客
-(function () {
-  function showWxTip() {
-    var el = document.getElementById('wxOpenTip');
-    if (el) el.style.display = 'flex';
-  }
-  if (location.search.indexOf('wx=1') > -1 || /MicroMessenger/i.test(navigator.userAgent)) {
-    try { if (!sessionStorage.getItem('wx_open_tip_closed')) showWxTip(); }
-    catch (e) { showWxTip(); }
-  }
-})();
-function closeWxOpenTip() {
-  var el = document.getElementById('wxOpenTip');
-  if (el) el.style.display = 'none';
-  try { sessionStorage.setItem('wx_open_tip_closed', '1'); } catch (e) {}
-}
-</script>
 <div class="top-bar" id="topBar">
   <span class="back-btn" id="backBtn" onclick="goBack()" style="display:none">&lsaquo;</span>
   <h1 id="topTitle">科技园</h1>
@@ -1522,6 +1517,13 @@ function closeWxOpenTip() {
         <option value="2-5F" selected>2-5层</option>
       </select>
     </div>
+    <div class="calc-row" id="calcSgRow" style="display:none">
+      <label>硕果计划</label>
+      <select class="calc-select" id="calcSg" onchange="calcFee()">
+        <option value="no">未通过硕果计划（按原价）</option>
+        <option value="yes">通过硕果计划（成果转化类）</option>
+      </select>
+    </div>
     <div class="calc-result" id="calcResult">
       <div class="calc-result-row"><span>服务/房租</span><span class="calc-result-val" id="calcServFee">—</span></div>
       <div class="calc-result-row"><span>物业费</span><span class="calc-result-val" id="calcPropFee">—</span></div>
@@ -1530,6 +1532,13 @@ function closeWxOpenTip() {
       <div class="calc-daily" id="calcDaily"></div>
       <div class="calc-result-row" style="margin-top:4px;padding-top:4px;border-top:1px dashed #e0e0e0"><span><b>预估年费（优惠后）</b></span><span class="calc-result-total" id="calcYearTotal" style="font-size:20px">—</span></div>
       <div class="calc-standard-ref" id="calcStandard" style="display:none"></div>
+    </div>
+    <!-- 硕果计划（碳湾园）三年并列结果：仅当"通过硕果计划"时显示 -->
+    <div class="calc-sg-result" id="calcSgResult" style="display:none">
+      <div class="calc-sg-head" id="calcSgHead">&#127806; 硕果计划（成果转化类）· 三年费用明细（含物业）</div>
+      <div class="calc-sg-grid" id="calcSgGrid"></div>
+      <div class="calc-sg-note" id="calcSgNote"></div>
+      <button class="calc-sg-jump" onclick="jumpToSgPolicy()">&#128203; 想了解其他类别的面积上限 / 减免标准？→ 查看碳湾园政策</button>
     </div>
     <div class="calc-policy-tip" id="calcPolicyTip" style="display:none"></div>
   </div>
@@ -2303,26 +2312,26 @@ const houses = [
   // === 津南园（海棠科创园，按楼层排序；2026-11-19 依最新入驻示意图刷新：新增9间/校正2间状态） ===
   { id:110, parkId:'jinnan', name:'713', building:'海棠科创园', area:111.6, floor:'7F', room:'13号', type:'单间', tag:'写字楼', condition:'精装', status:'可租', divider:true },
   { id:89, parkId:'jinnan', name:'714', building:'海棠科创园', area:206.82, floor:'7F', room:'14号', type:'单间', tag:'写字楼', condition:'精装', status:'可租', divider:true, video:'videos/jinnan/jinnan_714.mp4', imgs:['https://cdn.jsdelivr.net/gh/brain2345/park-platform@main/images/jinnan/jinnan_714_01.jpg','https://cdn.jsdelivr.net/gh/brain2345/park-platform@main/images/jinnan/jinnan_714_02.jpg','https://cdn.jsdelivr.net/gh/brain2345/park-platform@main/images/jinnan/jinnan_714_03.jpg','https://cdn.jsdelivr.net/gh/brain2345/park-platform@main/images/jinnan/jinnan_714_04.jpg','https://cdn.jsdelivr.net/gh/brain2345/park-platform@main/images/jinnan/jinnan_714_05.jpg','https://cdn.jsdelivr.net/gh/brain2345/park-platform@main/images/jinnan/jinnan_714_06.jpg'] },
-  { id:112, parkId:'jinnan', name:'715', building:'海棠科创园', area:111.6, floor:'7F', room:'15号', type:'单间', tag:'写字楼', condition:'精装', status:'即将退租' },
-  { id:113, parkId:'jinnan', name:'813', building:'海棠科创园', area:111.6, floor:'8F', room:'13号', type:'单间', tag:'写字楼', condition:'精装', status:'即将退租' },
+  { id:112, parkId:'jinnan', name:'715', building:'海棠科创园', area:111.6, floor:'7F', room:'15号', type:'单间', tag:'写字楼', condition:'精装', status:'可租' },
+  { id:113, parkId:'jinnan', name:'813', building:'海棠科创园', area:111.6, floor:'8F', room:'13号', type:'单间', tag:'写字楼', condition:'精装', status:'可租' },
   { id:111, parkId:'jinnan', name:'815', building:'海棠科创园', area:111.6, floor:'8F', room:'15号', type:'单间', tag:'写字楼', condition:'精装', status:'可租', divider:true },
   { id:64, parkId:'jinnan', name:'1012', building:'海棠科创园', area:204.34, floor:'10F', room:'12号', type:'单间', tag:'写字楼', condition:'精装', status:'可租', imgs:['https://cdn.jsdelivr.net/gh/brain2345/park-platform@main/images/jinnan/jinnan_1012_01.jpg','https://cdn.jsdelivr.net/gh/brain2345/park-platform@main/images/jinnan/jinnan_1012_02.jpg'] },
   { id:114, parkId:'jinnan', name:'1013', building:'海棠科创园', area:111.6, floor:'10F', room:'13号', type:'单间', tag:'写字楼', condition:'精装', status:'可租' },
   { id:91, parkId:'jinnan', name:'1014', building:'海棠科创园', area:206.82, floor:'10F', room:'14号', type:'单间', tag:'写字楼', condition:'精装', status:'可租', divider:true, imgs:['https://cdn.jsdelivr.net/gh/brain2345/park-platform@main/images/jinnan/jinnan_1014_01.jpg','https://cdn.jsdelivr.net/gh/brain2345/park-platform@main/images/jinnan/jinnan_1014_02.jpg','https://cdn.jsdelivr.net/gh/brain2345/park-platform@main/images/jinnan/jinnan_1014_03.jpg','https://cdn.jsdelivr.net/gh/brain2345/park-platform@main/images/jinnan/jinnan_1014_04.jpg','https://cdn.jsdelivr.net/gh/brain2345/park-platform@main/images/jinnan/jinnan_1014_05.png','https://cdn.jsdelivr.net/gh/brain2345/park-platform@main/images/jinnan/jinnan_1014_06.png'] },
   { id:65, parkId:'jinnan', name:'1016', building:'海棠科创园', area:204.34, floor:'10F', room:'16号', type:'单间', tag:'写字楼', condition:'精装', status:'可租' },
   { id:66, parkId:'jinnan', name:'1114', building:'海棠科创园', area:206.82, floor:'11F', room:'14号', type:'单间', tag:'写字楼', condition:'精装', status:'可租', imgs:['https://cdn.jsdelivr.net/gh/brain2345/park-platform@main/images/jinnan/jinnan_1114_01.jpg','https://cdn.jsdelivr.net/gh/brain2345/park-platform@main/images/jinnan/jinnan_1114_02.jpg','https://cdn.jsdelivr.net/gh/brain2345/park-platform@main/images/jinnan/jinnan_1114_03.jpg','https://cdn.jsdelivr.net/gh/brain2345/park-platform@main/images/jinnan/jinnan_1114_04.jpg'] },
-  { id:115, parkId:'jinnan', name:'1214', building:'海棠科创园', area:206.82, floor:'12F', room:'14号', type:'单间', tag:'写字楼', condition:'精装', status:'即将退租' },
-  { id:116, parkId:'jinnan', name:'1215', building:'海棠科创园', area:111.6, floor:'12F', room:'15号', type:'单间', tag:'写字楼', condition:'精装', status:'即将退租' },
-  { id:117, parkId:'jinnan', name:'1216', building:'海棠科创园', area:204.34, floor:'12F', room:'16号', type:'单间', tag:'写字楼', condition:'精装', status:'即将退租' },
+  { id:115, parkId:'jinnan', name:'1214', building:'海棠科创园', area:206.82, floor:'12F', room:'14号', type:'单间', tag:'写字楼', condition:'精装', status:'可租' },
+  { id:116, parkId:'jinnan', name:'1215', building:'海棠科创园', area:111.6, floor:'12F', room:'15号', type:'单间', tag:'写字楼', condition:'精装', status:'可租' },
+  { id:117, parkId:'jinnan', name:'1216', building:'海棠科创园', area:204.34, floor:'12F', room:'16号', type:'单间', tag:'写字楼', condition:'精装', status:'可租' },
   { id:76, parkId:'jinnan', name:'1312', building:'海棠科创园', area:204.34, floor:'13F', room:'12号', type:'单间', tag:'写字楼', condition:'精装', status:'可租' },
-  { id:118, parkId:'jinnan', name:'1313', building:'海棠科创园', area:111.6, floor:'13F', room:'13号', type:'单间', tag:'写字楼', condition:'精装', status:'即将退租' },
+  { id:118, parkId:'jinnan', name:'1313', building:'海棠科创园', area:111.6, floor:'13F', room:'13号', type:'单间', tag:'写字楼', condition:'精装', status:'可租' },
   { id:119, parkId:'jinnan', name:'1411', building:'海棠科创园', area:140.19, floor:'14F', room:'11号', type:'单间', tag:'写字楼', condition:'精装', status:'可租' },
   { id:68, parkId:'jinnan', name:'1412', building:'海棠科创园', area:204.34, floor:'14F', room:'12号', type:'单间', tag:'写字楼', condition:'精装', status:'可租', imgs:['https://cdn.jsdelivr.net/gh/brain2345/park-platform@main/images/jinnan/jinnan_1412_01.jpg','https://cdn.jsdelivr.net/gh/brain2345/park-platform@main/images/jinnan/jinnan_1412_02.jpg','https://cdn.jsdelivr.net/gh/brain2345/park-platform@main/images/jinnan/jinnan_1412_03.jpg'] },
-  { id:120, parkId:'jinnan', name:'1413', building:'海棠科创园', area:111.6, floor:'14F', room:'13号', type:'单间', tag:'写字楼', condition:'精装', status:'即将退租' },
+  { id:120, parkId:'jinnan', name:'1413', building:'海棠科创园', area:111.6, floor:'14F', room:'13号', type:'单间', tag:'写字楼', condition:'精装', status:'可租' },
   { id:87, parkId:'jinnan', name:'1616', building:'海棠科创园', area:204.34, floor:'16F', room:'16号', type:'单间', tag:'写字楼', condition:'精装', status:'可租', imgs:['https://cdn.jsdelivr.net/gh/brain2345/park-platform@main/images/jinnan/jinnan_1616_01.jpg','https://cdn.jsdelivr.net/gh/brain2345/park-platform@main/images/jinnan/jinnan_1616_02.jpg','https://cdn.jsdelivr.net/gh/brain2345/park-platform@main/images/jinnan/jinnan_1616_03.jpg','https://cdn.jsdelivr.net/gh/brain2345/park-platform@main/images/jinnan/jinnan_1616_04.jpg'] },
   { id:70, parkId:'jinnan', name:'1812', building:'海棠科创园', area:204.34, floor:'18F', room:'12号', type:'单间', tag:'写字楼', condition:'精装', status:'可租', imgs:['https://cdn.jsdelivr.net/gh/brain2345/park-platform@main/images/jinnan/jinnan_1812_01.jpg','https://cdn.jsdelivr.net/gh/brain2345/park-platform@main/images/jinnan/jinnan_1812_02.jpg','https://cdn.jsdelivr.net/gh/brain2345/park-platform@main/images/jinnan/jinnan_1812_03.jpg','https://cdn.jsdelivr.net/gh/brain2345/park-platform@main/images/jinnan/jinnan_1812_04.jpg'] },
   { id:71, parkId:'jinnan', name:'1814', building:'海棠科创园', area:206.82, floor:'18F', room:'14号', type:'单间', tag:'写字楼', condition:'精装', status:'可租', divider:true, imgs:['https://cdn.jsdelivr.net/gh/brain2345/park-platform@main/images/jinnan/jinnan_1814_01.jpg','https://cdn.jsdelivr.net/gh/brain2345/park-platform@main/images/jinnan/jinnan_1814_02.jpg','https://cdn.jsdelivr.net/gh/brain2345/park-platform@main/images/jinnan/jinnan_1814_03.jpg','https://cdn.jsdelivr.net/gh/brain2345/park-platform@main/images/jinnan/jinnan_1814_04.jpg'] },
-  { id:90, parkId:'jinnan', name:'1815', building:'海棠科创园', area:111.6, floor:'18F', room:'15号', type:'单间', tag:'写字楼', condition:'精装', status:'即将退租', imgs:['https://cdn.jsdelivr.net/gh/brain2345/park-platform@main/images/jinnan/jinnan_1815_01.jpg','https://cdn.jsdelivr.net/gh/brain2345/park-platform@main/images/jinnan/jinnan_1815_02.jpg'] },
+  { id:90, parkId:'jinnan', name:'1815', building:'海棠科创园', area:111.6, floor:'18F', room:'15号', type:'单间', tag:'写字楼', condition:'精装', status:'可租', imgs:['https://cdn.jsdelivr.net/gh/brain2345/park-platform@main/images/jinnan/jinnan_1815_01.jpg','https://cdn.jsdelivr.net/gh/brain2345/park-platform@main/images/jinnan/jinnan_1815_02.jpg'] },
   { id:72, parkId:'jinnan', name:'1816', building:'海棠科创园', area:204.34, floor:'18F', room:'16号', type:'单间', tag:'写字楼', condition:'精装', status:'可租', divider:true, imgs:['https://cdn.jsdelivr.net/gh/brain2345/park-platform@main/images/jinnan/jinnan_1816_01.jpg','https://cdn.jsdelivr.net/gh/brain2345/park-platform@main/images/jinnan/jinnan_1816_02.jpg','https://cdn.jsdelivr.net/gh/brain2345/park-platform@main/images/jinnan/jinnan_1816_03.jpg','https://cdn.jsdelivr.net/gh/brain2345/park-platform@main/images/jinnan/jinnan_1816_04.jpg'] },
 
   // === 南开园（启航大厦） ===
@@ -2334,8 +2343,8 @@ const houses = [
 
 // ===== 房源自助管理（2026-11-19）：标记已租/恢复在租、新增房源 =====
 // 数据模型：HOUSES_BASE = 代码里的原始房源（只读基准）
-//           ROOMS_OVERLAY = 管理员的改动 { rented:[房源id], added:[新房源对象] }
-//           houses = 访客看到的最终列表 = BASE - rented + added（每次apply全量重建）
+//           ROOMS_OVERLAY = 管理员的改动 { rented:[房源id], added:[新房源对象], status:{id:状态} }
+//           houses = 访客看到的最终列表 = BASE - rented + added + status覆盖（每次apply全量重建）
 // 线上发布：管理员导出 rooms_publish.zip → publish_rooms.bat 推 GitHub（rooms_overlay.json）
 // 访客端启动时 fetch rooms_overlay.json 应用改动；本地用 localStorage 草稿实时预览
 const HOUSES_BASE = houses.slice();
@@ -2356,6 +2365,15 @@ function applyRoomsOverlay() {
     if (_cdn && c.imgs) c.imgs = c.imgs.map(s => s.indexOf('data:') === 0 ? s : _cdn + s);
     houses.push(c);
   });
+  // 状态覆盖（2026-11-23）：ROOMS_OVERLAY.status = { 房源id: '可租'|'即将退租'|'可租'|'即将交付' }
+  // 对外版(IS_PUBLIC)不应用状态覆盖——与 gen_public 静态脱敏口径一致（对外一律不显示内部台账状态，防泄露）
+  if (!(typeof IS_PUBLIC !== 'undefined' && IS_PUBLIC)) {
+    const st = ROOMS_OVERLAY.status || {};
+    Object.keys(st).forEach(k => {
+      const h = houses.find(x => x.id == k);
+      if (h && st[k]) h.status = st[k];
+    });
+  }
 }
 
 function saveRoomsDraft() {
@@ -2371,7 +2389,7 @@ function loadRoomsDraft() {
     const raw = localStorage.getItem('roomsAdminDraft');
     if (raw) {
       const d = JSON.parse(raw);
-      if (d && (d.rented || d.added)) return d;
+      if (d && (d.rented || d.added || d.status)) return d;
     }
   } catch (e) {}
   return null;
@@ -2806,7 +2824,7 @@ function openParkDetail(parkId, noPush) {
     legendHTML = `
       <div class="legend-bar">
         <div class="legend-item"><span class="legend-dot" style="background:#fff;border:2px solid #1a6fd4"></span>可选</div>
-        <div class="legend-item"><span class="legend-dot green"></span>即将退租</div>
+        
         
       </div>`;
   } else if (parkId === 'tiankai') {
@@ -4224,6 +4242,75 @@ function setCalcArea(area) {
   event.target.classList.add('active');
   calcFee();
 }
+
+// ===== 硕果计划（碳湾园）三年并列计算（2026-11-23 孙工口径）=====
+// 房租：首层1.5 / 2-5层1.0 元/天/㎡，第1年缴20%、第2年30%、第3年50%；
+// 物业费 0.6 元/天/㎡（含能源费）全额缴纳、不减免；
+// 面积上限1000㎡，超出部分房租按原价(100%)全额缴纳。
+function renderCalcSgResult(area, isFloor1, c, daysPerMonth, fmt) {
+  const servRate = isFloor1 ? (c.firstFloorServMin || 1.5) : c.servDay;
+  const propRate = c.propDay; // 0.6
+  const capArea = Math.min(area, 1000);
+  const excess = Math.max(0, area - 1000);
+  const years = [
+    { n: '第1年', rate: 0.2 },
+    { n: '第2年', rate: 0.3 },
+    { n: '第3年', rate: 0.5 }
+  ];
+  // 先按年算好四组数（房租/物业/月费/年费），物业三年固定
+  const calc = years.map(function (y) {
+    const rentMonth = (capArea * servRate * y.rate + excess * servRate) * daysPerMonth;
+    const propMonth = area * propRate * daysPerMonth; // 全额、不打折、不参与减免
+    const monthTotal = rentMonth + propMonth;
+    return { n: y.n, rate: Math.round(y.rate * 100), rent: rentMonth, prop: propMonth, month: monthTotal, year: monthTotal * 12 };
+  });
+  const cell = (cls, html) => '<div class="calc-sg-cell ' + cls + '">' + html + '</div>';
+  // 表头：第一列空，后三列年份 + 房租缴纳比例
+  let grid = cell('hd first', '费用项');
+  calc.forEach(function (d) {
+    grid += cell('hd', d.n + '<span class="rate">房租交 ' + d.rate + '%</span>');
+  });
+  // 第1行：房租 / 月（逐年变）
+  grid += cell('lbl first', '房租 / 月');
+  calc.forEach(function (d) { grid += cell('val', fmt(d.rent)); });
+  // 第2行：物业费 / 月（含能源费，全额不减免；三年相同）
+  grid += cell('lbl first', '物业费 / 月<span class="sub">含能源费 · 全额不减免</span>');
+  calc.forEach(function (d) { grid += cell('val', fmt(d.prop)); });
+  // 第3行：月费合计（含物业）—— 强调行
+  grid += cell('lbl first', '月费合计<span class="sub">房租 + 物业费（含物业）</span>');
+  calc.forEach(function (d) { grid += cell('val hi', fmt(d.month)); });
+  // 第4行：年费合计（含物业）—— 强调行
+  grid += cell('lbl first', '年费合计<span class="sub">月费 × 12（含物业）</span>');
+  calc.forEach(function (d) { grid += cell('val hi2', fmt(d.year)); });
+  document.getElementById('calcSgGrid').innerHTML = grid;
+
+  const floorTxt = isFloor1 ? '首层房租 1.5 元/天/㎡' : '2-5层房租 1.0 元/天/㎡';
+  let note = '• 上表<b>月费 / 年费均已含物业费</b>（= 房租 + 物业费，物业费不打折、按全额计）<br>'
+    + '• ' + floorTxt + '，按年第1年缴 <b>20%</b>、第2年 <b>30%</b>、第3年 <b>50%</b><br>'
+    + '• 物业费 <b>0.6 元/天/㎡（含能源费）全额缴纳、不参与减免</b><br>';
+  if (excess > 0) {
+    note += '• 面积 ' + area + '㎡：前 1000㎡ 房租享政策价，超出 <b>' + excess + '㎡</b> 房租按原价全额缴纳<br>';
+  } else {
+    note += '• 成果转化类面积上限 1000㎡，当前 ' + area + '㎡ 全额享政策价<br>';
+  }
+  note += '• 以上为<b>返还前实缴</b>，房租部分纳入年度考核按等级返还，详见下方「考核测算器」';
+  document.getElementById('calcSgNote').innerHTML = note;
+  const head = document.getElementById('calcSgHead');
+  if (head) head.innerHTML = '&#127806; 硕果计划（成果转化类 · ' + area + '㎡ · ' + (isFloor1 ? '首层' : '2-5层') + '）· 三年费用明细（含物业）';
+}
+
+// 跳到碳湾园详情页的硕果计划政策区块（跨页：先开详情，再滚到政策锚点）
+function jumpToSgPolicy() {
+  if (typeof openParkDetail === 'function') openParkDetail('tanwan');
+  setTimeout(function () {
+    if (typeof anchorScrollTo === 'function') anchorScrollTo('sec-policy');
+    else {
+      var el = document.getElementById('sec-policy');
+      if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, 80);
+}
+
 function calcFee() {
   const area = parseFloat(document.getElementById('calcArea').value);
   const parkId = document.getElementById('calcPark').value;
@@ -4231,17 +4318,22 @@ function calcFee() {
   const tipEl = document.getElementById('calcPolicyTip');
   const stdEl = document.getElementById('calcStandard');
   const floorRow = document.getElementById('calcFloorRow');
+  const sgRow = document.getElementById('calcSgRow');
+  const sgResultEl = document.getElementById('calcSgResult');
 
   const areaRow = document.getElementById('calcAreaRow');
   const quickRow = document.getElementById('calcQuickRow');
 
   // 碳湾园恢复普通计算器（2026-11-13 孙工确认：显示面积/楼层，按原价计算）
+  // 2026-11-23 追加：碳湾园单独显示「硕果计划」下拉
   if (parkId === 'tanwan') {
     floorRow.style.display = 'block';
+    if (sgRow) sgRow.style.display = 'flex';
     if (areaRow) areaRow.style.display = 'flex';
     if (quickRow) quickRow.style.display = 'flex';
   } else {
     floorRow.style.display = 'none';
+    if (sgRow) sgRow.style.display = 'none';
     if (areaRow) areaRow.style.display = 'flex';
     if (quickRow) quickRow.style.display = 'flex';
   }
@@ -4264,6 +4356,7 @@ function calcFee() {
   resultEl.classList.remove('show');
   tipEl.style.display = 'none';
   stdEl.style.display = 'none';
+  if (sgResultEl) sgResultEl.style.display = 'none';
   if (!area || area <= 0 || !parkId) return;
   
   const park = parks.find(p => p.id === parkId);
@@ -4286,9 +4379,27 @@ function calcFee() {
     propMonth = area * c.propMonth;
   }
   
-  // --- 碳湾园原价（2026-11-13 孙工确认恢复普通计算器，一律按原价；硕果计划优惠见下方考核测算器） ---
-  // 首层：房租1.5元/天/m² + 物业0.6；2-5层：房租1.0元/天/m² + 物业0.6
+  // --- 碳湾园（2026-11-13 恢复普通计算器按原价；2026-11-23 追加硕果计划开关）---
+  // 未通过硕果计划（默认）：首层房租1.5+物业0.6、2-5层房租1.0+物业0.6，按原价
+  // 通过硕果计划：房租逐年20%/30%/50%，物业0.6全额不减免，三年并列展示
   if (parkId === 'tanwan') {
+    const sgSel = document.getElementById('calcSg');
+    const sgPassed = sgSel && sgSel.value === 'yes';
+    document.querySelectorAll('#calcQuickRow .calc-quick-chip').forEach(chip => {
+      chip.classList.toggle('active', parseInt(chip.textContent) === area);
+    });
+
+    if (sgPassed) {
+      // 通过硕果计划：三年并列（结果区显示 calcSgResult，普通结果区保持隐藏）
+      renderCalcSgResult(area, isFloor1, c, daysPerMonth, fmt);
+      if (sgResultEl) sgResultEl.style.display = 'block';
+      resultEl.classList.remove('show');
+      tipEl.style.display = 'none';
+      stdEl.style.display = 'none';
+      return;
+    }
+
+    // 未通过硕果计划（按原价）——保持原有显示不变
     const servRate = isFloor1 ? c.firstFloorServMin : c.servDay;
     const propRate = isFloor1 ? (c.firstFloorPropDay || c.propDay) : c.propDay;
     const rentMonth = area * servRate * daysPerMonth;
@@ -4304,9 +4415,6 @@ function calcFee() {
     resultEl.classList.add('show');
     tipEl.style.display = 'none';
     stdEl.style.display = 'none';
-    document.querySelectorAll('#calcQuickRow .calc-quick-chip').forEach(chip => {
-      chip.classList.toggle('active', parseInt(chip.textContent) === area);
-    });
     return;
   }
   
@@ -6441,7 +6549,7 @@ function renderAdminPanelDom() {
   <div id="adminPanel">
     <div class="admin-head"><b>⚙ 房源管理</b><span class="admin-close" onclick="closeAdminPanel()">×</span></div>
     <div class="admin-tabs">
-      <button id="atab-list" class="admin-tab on" onclick="adminShowTab('list')">🏷 标记已租</button>
+      <button id="atab-list" class="admin-tab on" onclick="adminShowTab('list')">🏷 状态 / 已租</button>
       <button id="atab-add" class="admin-tab" onclick="adminShowTab('add')">➕ 新增 / 修改</button>
     </div>
     <div class="admin-body">
@@ -6551,11 +6659,20 @@ function renderAdminList() {
   let list = HOUSES_BASE.slice().reverse().concat(ROOMS_OVERLAY.added.slice().reverse());
   if (adminParkFilter !== 'all') list = list.filter(h => h.parkId === adminParkFilter);
   const rented = ROOMS_OVERLAY.rented || [];
+  const stMap = ROOMS_OVERLAY.status || {};
+  const ST_OPTIONS = ['可租', '即将退租', '可租', '即将交付'];
   document.getElementById('adminList').innerHTML = list.map(h => {
     const isAdded = ROOMS_OVERLAY.added.some(a => a.id === h.id);
     const isRented = rented.indexOf(h.id) >= 0;
     const pn = (parks.find(p => p.id === h.parkId) || {}).name || h.parkId;
     const areaTxt = typeof h.area === 'number' ? h.area + '㎡' : '';
+    // 状态下拉：显示当前生效状态（含覆盖），改过且与基准不同的高亮
+    const eff = stMap[h.id] !== undefined ? stMap[h.id] : (h.status || '可租');
+    const baseSt = isAdded ? (ROOMS_OVERLAY.added.find(a => a.id === h.id) || {}).status : (HOUSES_BASE.find(b => b.id === h.id) || {}).status;
+    const isOvr = stMap[h.id] !== undefined && stMap[h.id] !== baseSt;
+    const stSel = `<select class="admin-status-sel ${isOvr ? 'ovr' : ''}" onchange="adminSetStatus(${h.id}, this.value)">`
+      + ST_OPTIONS.map(s => `<option value="${s}" ${s === eff ? 'selected' : ''}>${s}</option>`).join('')
+      + '</select>';
     const btn = isAdded
       ? `<button class="admin-edit-link" onclick="adminEditAdded(${h.id})">编辑</button>
          <button class="admin-btn remove" onclick="adminRemoveAdded(${h.id})">移除</button>`
@@ -6567,13 +6684,28 @@ function renderAdminList() {
         <div class="admin-row-name">${h.name} <span class="admin-added-badge">${isAdded ? '新增' : ''}</span></div>
         <div class="admin-row-sub">${pn} · ${h.building || ''} · ${h.floor || ''} · ${areaTxt}</div>
       </div>
-      <span style="font-size:11px;color:${isRented ? '#c62828' : '#2e7d32'}">${isRented ? '已租(隐藏)' : (h.status || '')}</span>
+      ${isRented ? '<span style="font-size:11px;color:#c62828">已租(隐藏)</span>' : stSel}
       ${btn}
     </div>`;
   }).join('') || '<div style="text-align:center;color:#999;padding:30px">该园区暂无房源</div>';
-  const n = rented.length + ROOMS_OVERLAY.added.length;
+  const stN = Object.keys(ROOMS_OVERLAY.status || {}).length;
+  const n = rented.length + ROOMS_OVERLAY.added.length + stN;
   document.getElementById('adminFootTip').textContent =
-    n > 0 ? `待发布改动：标记已租 ${rented.length} 处 · 新增 ${ROOMS_OVERLAY.added.length} 套` : '暂无改动，点按钮直接标记或新增';
+    n > 0 ? `待发布改动：标记已租 ${rented.length} 处 · 新增 ${ROOMS_OVERLAY.added.length} 套 · 状态修改 ${stN} 处` : '暂无改动，改状态、标记已租或新增均可';
+}
+
+// 切换房源状态：与基准状态相同则删除覆盖，否则记录覆盖（草稿生效，导出发布后线上同步）
+function adminSetStatus(id, v) {
+  const addedRoom = (ROOMS_OVERLAY.added || []).find(a => a.id === id);
+  const baseSt = addedRoom ? addedRoom.status : (HOUSES_BASE.find(b => b.id === id) || {}).status;
+  if (!ROOMS_OVERLAY.status) ROOMS_OVERLAY.status = {};
+  if (v === baseSt) delete ROOMS_OVERLAY.status[id];
+  else ROOMS_OVERLAY.status[id] = v;
+  if (!Object.keys(ROOMS_OVERLAY.status).length) delete ROOMS_OVERLAY.status;
+  saveRoomsDraft();
+  applyRoomsOverlay();
+  refreshHouseViews();
+  renderAdminList();
 }
 
 function adminToggleRented(id) {
@@ -6714,7 +6846,8 @@ function adminLoadJSZip(cb) {
 
 function adminExport() {
   const rented = ROOMS_OVERLAY.rented || [], added = ROOMS_OVERLAY.added || [];
-  if (!rented.length && !added.length) { alert('还没有任何改动，先标记已租或新增房源'); return; }
+  const stN = Object.keys(ROOMS_OVERLAY.status || {}).length;
+  if (!rented.length && !added.length && !stN) { alert('还没有任何改动，先改状态、标记已租或新增房源'); return; }
   adminLoadJSZip(function () {
     const overlay = JSON.parse(JSON.stringify(ROOMS_OVERLAY));
     const imgFiles = [];
@@ -6771,7 +6904,7 @@ function adminExport() {
     fetch('rooms_overlay.json', { cache: 'no-store' })
       .then(r => r.ok ? r.json() : null)
       .then(o => {
-        if (o && o.rented) {
+        if (o && (o.rented || o.added || o.status)) {
           ROOMS_OVERLAY_REMOTE = o;
           if (!loadRoomsDraft()) { ROOMS_OVERLAY = o; applyRoomsOverlay(); }
         }
